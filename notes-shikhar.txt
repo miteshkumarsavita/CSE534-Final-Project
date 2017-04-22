@@ -70,18 +70,30 @@ Note: all experiments will have a graph with four curves for 4 combs of (H, C) x
 EXP 1: effect of increasing the levels of domain names:
 name: "levels"
 level: 2 to 10 step 1
+(we expect latency for H to increase as level increases)
 
 EXP 2: effect of increasing chord Nodes
 name: "count-nodes"
 chordNodes: 2 to 20 step 1
-(note: we should see latency increasing as nChordNodes increases)
+(note: we should see latency for C increasing as nChordNodes increases)
 
 EXP 3: effect of caching if some requests are repeated
 name: "repeat-request"
 subset=0.10 to 0.01 step -0.01
+(we expect latency for both C and H to decrease as subset decreases)
 
 EXP 4: lookup for non-existent entries
 question: should we lookup completely random non-existent entries, which might fail at the first node, or some intelligent queries that only fail at a partiular level.
 e.g. non-existent.google.com will fail at `non-existent` in H, but will immediately in C, which is good result for us
 (TODO: think more about this)
+
+---------------------------------------------------------
+POPULATING THE DNS
+
+TODO: shikhar
+
+
+---------------------------------------------------------
+
+
 
