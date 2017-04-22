@@ -118,10 +118,12 @@ This domains file is parsed and then used to populate the H and C DNS systems
 ---------------------------------------------------------
 SETUP OF THE EXPERIMENT
 
-TODO: shikhar
-Master
-Client...
-!! async
+----BIG PICTURE----
+The program will be passed a config file.
+Then, there's a master process that will read this config file, and make four config objects based on section "RELATIONSHIP bw CONFIG AND EXPERIMENTS"
+It will run these four experiments, get stats from different processes at the end of the experiment, crunch numbers, and write to stat files
+
+----DETAILS----
 
 ---------------------------------------------------------
 
