@@ -1,12 +1,13 @@
 ---------------------------------------------------------
 STRUCTURE OF CONFIG FILE
-TODO
+root of the json file will have common config options for both hierarchical (H)
+as well as chord based (C) DNS system. Root will also contain two sub-objects "hirarchical", "chord"
+
 
 ---------------------------------------------------------
-WHAT TO MEASURE
+WHAT TO MEASURE (RECORD)
 latency : min, max, mean, std dev
 throughput: number of requests processed per second
-
 
 ---------------------------------------------------------
 EXPERIMENTS
@@ -17,12 +18,12 @@ chordNodes=10
 
 EXP 1: basic comparison between hierarchical DNS
 name: "basic-cache-off"
-caching: False
+caching: "off"
 [parts of domain: 3, e.g., www.google.com]
 
 EXP 2: basic comparison between hierarchical DNS (with caching turned on)
 name: "basic-cache-on"
-caching: True
+caching: "on"
 [parts of domain: 3, e.g., www.google.com]
 
 EXP 3: effect of increasing chord Nodes (with caching off)
@@ -34,4 +35,12 @@ EXP 4: effect of increasing chord Nodes (with caching on)
 name: "effect-nodes-cache-on"
 chordNodes: 2 to 20 step 1
 
+EXP 5: effect of increasing the levels of domain names (caching off):
+name: "levels-cache-off"
+level: 2 to 10 step 1
+caching: "off"
 
+EXP 6: effect of increasing the levels of domain names (caching on):
+name: "levels-cache-on"
+level: 2 to 10 step 1
+caching: "on"
