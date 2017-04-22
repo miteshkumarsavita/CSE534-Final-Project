@@ -1,7 +1,7 @@
 {
-	"name": "basic-cache-off",
+	"name": "basic-cache-on",
 	"nReq": 10000,
-	"caching": "off",
+	"caching": "on",
 	"hierarchical": {
 	
 	},
