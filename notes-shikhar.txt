@@ -1,18 +1,56 @@
 ---------------------------------------------------------
 STRUCTURE OF CONFIG FILE
-root of the json file will have common config options for both hierarchical (H)
-as well as chord based (C) DNS system. Root will also contain two sub-objects "hierarchical", "chord"
+Root of the json file will have common config options for both hierarchical (H)
+as well as chord based (C) DNS system.
 
+Root will also contain two sub-objects "hierarchical", "chord" to define any specific configuration options 
+for H and C respectively
 
 ---------------------------------------------------------
 WHAT TO MEASURE (RECORD)
+
+-----for each lookup----
 latency : min, max, mean, std dev
 throughput: number of requests processed per second
+hopsPerLookup: number of nodes that had to be contacted to fulfill this request
+
+----for each node------
+number of messages sent (this can be used later to calculate avg message per request)
+CPU time: time used by the process (just to get an idea of how much work C does as compared to H)
+
+HOW TO MEASURE
+time: https://docs.python.org/3.6/library/time.html#time.perf_counter
+CPU time: https://docs.python.org/3/library/time.html#time.process_time
+
+---------------------------------------------------------
+RELATIONSHIP bw CONFIG AND EXPERIMENTS
+For each config file, we will generate FOUR stat/log files for the following FOUR experiments:
+H, caching-off
+H, caching-on
+C, caching-off
+C, caching-no
+
+---------------------------------------------------------
+LOGGING and STATS
+
+log files will contain basic messages (msg received, sending message, debug msgs, etc.)
+Note: we will turn off logging when running the final experiments (because IO to file is expensive)
+
+stat files will contain all the measured quantities, and the seeds used
+Note: we will have two versions of stat files with the same data: one human-readable txt file, and a pickle file
+that can be used later to do analysis, make graphs, etc.
+
+---------------------------------------------------------
+FOLDER STRUCTURE
+
+Each config will have its own folder in each of these folders: [stats, logs]
+In turn, this folder will contain four files for the four variations of experiments as mentioned in 'RELATIONSHIP bw CONFIG AND EXPERIMENTS'
 
 ---------------------------------------------------------
 EXPERIMENTS
 
---defaults-- (if not specified explicitly)
+------defaults------- (if not specified explicitly)
+
 nReq=5000
 
 chordNodes=10
@@ -24,6 +62,7 @@ subset=1
 if subset=1, all domains are considered for request
 if subset=f where f is any fraction less than 1, we only consider that fraction of the total domains that we have
 for sending requests. This is helpful if we want to see the effect of caching
+----------------------
 
 Note: all experiments will have two variations: one with caching turned off and one with on
 Note: all experiments will have a graph with four curves for 4 combs of (H, C) x (caching-off, caching-on)
@@ -41,6 +80,8 @@ EXP 3: effect of caching if some requests are repeated
 name: "repeat-request"
 subset=0.10 to 0.01 step -0.01
 
-
-
+EXP 4: lookup for non-existent entries
+question: should we lookup completely random non-existent entries, which might fail at the first node, or some intelligent queries that only fail at a partiular level.
+e.g. non-existent.google.com will fail at `non-existent` in H, but will immediately in C, which is good result for us
+(TODO: think more about this)
 
