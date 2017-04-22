@@ -1,0 +1,37 @@
+---------------------------------------------------------
+STRUCTURE OF CONFIG FILE
+TODO
+
+---------------------------------------------------------
+WHAT TO MEASURE
+latency : min, max, mean, std dev
+throughput: number of requests processed per second
+
+
+---------------------------------------------------------
+EXPERIMENTS
+
+--defaults-- (if not specified explicitly)
+nReq=5000
+chordNodes=10
+
+EXP 1: basic comparison between hierarchical DNS
+name: "basic-cache-off"
+caching: False
+[parts of domain: 3, e.g., www.google.com]
+
+EXP 2: basic comparison between hierarchical DNS (with caching turned on)
+name: "basic-cache-on"
+caching: True
+[parts of domain: 3, e.g., www.google.com]
+
+EXP 3: effect of increasing chord Nodes (with caching off)
+name: "effect-nodes-cache-off"
+chordNodes: 2 to 20 step 1
+(note: we should see latency increasing as nChordNodes increases)
+
+EXP 4: effect of increasing chord Nodes (with caching on)
+name: "effect-nodes-cache-on"
+chordNodes: 2 to 20 step 1
+
+
