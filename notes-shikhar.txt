@@ -87,11 +87,33 @@ question: should we lookup completely random non-existent entries, which might f
 e.g. non-existent.google.com will fail at `non-existent` in H, but will immediately in C, which is good result for us
 (TODO: think more about this)
 
+
+---------------------------------------------------------
+RANDOM NUMBER GENERATION
+Since we want the experiments to be fair, all experiments will use the same seed to generate requests, same seed to select subset, and to make other client-side decisions
+We will also have a seed that is used to make decisions in the internal code of H and C, but that can be different (if we want) since the internals are completely different
+I think it's a good idea to keep the same 'internal' seed for all experiments (we can think more about this)
+
+# Generating seed
+seed = int.from_bytes(os.urandom(32), 'big')
+
+# seeding randomizer
+randomizer = random.Random()
+randomizer.seed(seed)
+
+# using randomizer (one way)
+randomizer.random()
+
+# using randomizer (another way)
+randomizer.choice([1, 2, 3])
+
 ---------------------------------------------------------
 POPULATING THE DNS
 
-TODO: shikhar
+Based on the `levels` variable in the config file, a domains file is created that contains all the domain names we will have in our experiment
+(note: this file is only created if it does not already exist)
 
+This domains file is parsed and then used to populate the H and C DNS systems
 
 ---------------------------------------------------------
 SETUP OF THE EXPERIMENT
