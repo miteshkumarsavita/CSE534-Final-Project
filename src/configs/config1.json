@@ -1,0 +1,11 @@
+{
+	"name": "basic-cache-off",
+	"nReq": 10000,
+	"caching": False,
+	"hierarchical": {
+	
+	},
+	"chord" : {
+		"nNodes": 10
+	}
+}
