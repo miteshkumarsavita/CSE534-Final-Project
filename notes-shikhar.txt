@@ -124,6 +124,31 @@ Then, there's a master process that will read this config file, and make four co
 It will run these four experiments, get stats from different processes at the end of the experiment, crunch numbers, and write to stat files
 
 ----DETAILS----
+Different kinds of processes
+
+MASTER
+main process that creates/coordinates all other processes
+
+CLIENT
+Used to generate lookups requests
+Note: we plan to make the client asynchronous, i.e., it will continuously send request (e.g. in a for-loop) without waiting for the result of an earlier request
+We believe this will result in higher throughput, although it might have a small negative effect on latency.
+Note: another option we have is to have multiple clients sending requests to the DNS system, but we think this is equivalent to sending multiple async requests through one client, so probably, we won't bother with this
+
+H system
+This is the hierachical DNS system process.
+It will have public {methods/message handlers} for initialization, population, and lookups.
+It will also have stat message handlers which will be called at the end by master to collect this process's stats.
+TODO: add hierarchical DNS image
+
+
+C system
+This is the Chord based DNS system process.
+It will have public {methods/message handlers} for initialization, population, and lookups.
+It will also have stat message handlers which will be called at the end by master to collect this process's stats.
+This will be a simple chord ring based on the paper "Chord: A Scalable Peer-to-Peer Lookup Protocol for Internet Applications" by Stoica et al.
+
+
 
 ---------------------------------------------------------
 
