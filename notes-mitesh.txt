@@ -1,5 +1,9 @@
 - what to do in case of heirarchical DNS when an entry like google.co.jp comes. Are we handling such situations? 
 Will we be redirecting the query again to the tld server in this case?
+Shikhar: Our testbed is actually really simple; we don't really model the structure of the actual DNS. We won't have the concept of private namerservers.
+Shikhar: In our case, each node just tells about the next node. No concept of (NS, A, MX) record
 
 - In case of heirarchical DNS, what will be the structure of our record? What information will it contain regarding
 the next node? e.g. [name, next-node/ip-address] or something else.
+Shikhar: If this node is not responsible for the whole domain, then, it will contain a reference to the next node (process) in the hierarchy that is repsonsible for it.
+Shikhar: This is so that we can send the lookup to that node next. If, however, it IS responsible for the complete domain, it will just return True or something (we still need to think about this)
