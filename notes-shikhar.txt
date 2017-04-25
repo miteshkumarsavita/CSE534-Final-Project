@@ -83,10 +83,11 @@ subset=0.10 to 0.01 step -0.01
 (we expect latency for both C and H to decrease as subset decreases)
 
 EXP 4: lookup for non-existent entries
-question: should we lookup completely random non-existent entries, which might fail at the first node, or some intelligent queries that only fail at a partiular level.
-e.g. non-existent.google.com will fail at `non-existent` in H, but will immediately in C, which is good result for us
-(TODO: think more about this)
-
+two ways to generate non-existent lookpus:
+(a) completely random non-existent entries, which might fail at the first node, or 
+(b) some intelligent queries that only fail at a particular level.
+    e.g. non-existent.google.com will fail at `non-existent` in H, but will immediately in C
+We will perform both experiments, and decide based on the results which one to report
 
 ---------------------------------------------------------
 RANDOM NUMBER GENERATION
@@ -118,16 +119,12 @@ This domains file is parsed and then used to populate the H and C DNS systems
 ---------------------------------------------------------
 SETUP OF THE EXPERIMENT
 
-----BIG PICTURE----
-The program will be passed a config file.
-Then, there's a master process that will read this config file, and make four config objects based on section "RELATIONSHIP bw CONFIG AND EXPERIMENTS"
-It will run these four experiments, get stats from different processes at the end of the experiment, crunch numbers, and write to stat files
-
-----DETAILS----
-Different kinds of processes
+-----Different kinds of processes-----
 
 MASTER
 main process that creates/coordinates all other processes
+Reads in a config file, and makes four config objects based on section "RELATIONSHIP bw CONFIG AND EXPERIMENTS"
+It will run these four experiments, get stats from different processes at the end of the experiment, crunch numbers, and write to stat files
 
 CLIENT
 Used to generate lookups requests
@@ -147,8 +144,6 @@ This is the Chord based DNS system process.
 It will have public {methods/message handlers} for initialization, population, and lookups.
 It will also have stat message handlers which will be called at the end by master to collect this process's stats.
 This will be a simple chord ring based on the paper "Chord: A Scalable Peer-to-Peer Lookup Protocol for Internet Applications" by Stoica et al.
-
-
 
 ---------------------------------------------------------
 
