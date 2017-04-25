@@ -1,0 +1,20 @@
+import json
+import sys
+
+Master = import_da('Master')
+
+def print_usage():
+    print("Usage: python3 -m da main.da <config>")
+
+def main():
+
+    if len(sys.argv) != 2:
+        print_usage()
+        exit()
+    
+    configFile = open(sys.argv[1])
+    configFile = json.load(configFile)
+    
+    master = new(Master.Master, num=1)
+    setup(master, (configFile,))
+    start(master)

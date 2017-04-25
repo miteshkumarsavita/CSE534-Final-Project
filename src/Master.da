@@ -1,0 +1,21 @@
+#from Logger import Logger
+#import random
+import Filenames
+#import time
+#import os
+#import pickle
+#from pprint import pformat
+#from mapper import getCoordinatorIndex, getCoordinator
+#from config import *
+
+class Master(process):
+    def setup(config):
+        self.config = config
+        self.finished = False
+
+        Filenames.createAllFolders(config)
+        # pass
+    
+    def run():
+        await(self.finished)
+
