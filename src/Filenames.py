@@ -3,7 +3,8 @@ import os
 
 def getBaseExperimentName(config):
     cachingStr = "cache-on" if config['caching'] else "cache-off"
-    return cachingStr + "_nReq-" + str(config['nReq']) + "_subset-" + str(config['subset']) + "_levels-" + str(config['levels'])
+    chordNodesStr = "_nNodes-" + str(config['chord']['nNodes']) if 'nNodes' in config['chord'] else ""
+    return cachingStr + chordNodesStr + "_nReq-" + str(config['nReq']) + "_subset-" + str(config['subset']) + "_levels-" + str(config['levels'])
 
 def createAllFolders(config):
     createFolderIfNotExists(getBaseStatsFolderName(config))
@@ -35,7 +36,7 @@ def getLogsFolderName(config):
 def getClientLogFilename(config):
     return getLogsFolderName(config) + getBaseExperimentName(config) + ".client.txt"
 def getMasterLogFilename(config):
-    return getLogsFolderName(config) + getBaseExperimentName(config) + ".master.txt"
+    return getBaseLogsFolderName(config) + "master.txt"
 
 
 # ------------  graphs ------------------

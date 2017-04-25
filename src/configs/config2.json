@@ -12,28 +12,26 @@
 		"domainCardinalities": [10, 1000, 1000, 1000]
 	},
 	"chord": {
-		"nNodes": 10
-	},
-	"experiments": [
-		{"chord": {"nNodes": 2}},
-		{"chord": {"nNodes": 3}},
-		{"chord": {"nNodes": 4}},
-		{"chord": {"nNodes": 5}},
-		{"chord": {"nNodes": 6}},
-		{"chord": {"nNodes": 7}},
-		{"chord": {"nNodes": 8}},
-		{"chord": {"nNodes": 9}},
-		{"chord": {"nNodes": 10}},
-		{"chord": {"nNodes": 11}},
-		{"chord": {"nNodes": 12}},
-		{"chord": {"nNodes": 13}},
-		{"chord": {"nNodes": 14}},
-		{"chord": {"nNodes": 15}},
-		{"chord": {"nNodes": 16}},
-		{"chord": {"nNodes": 17}},
-		{"chord": {"nNodes": 18}},
-		{"chord": {"nNodes": 19}},
-		{"chord": {"nNodes": 20}}
-
-	]
+		"experiments": [
+			{"nNodes": 2},
+			{"nNodes": 3},
+			{"nNodes": 4},
+			{"nNodes": 5},
+			{"nNodes": 6},
+			{"nNodes": 7},
+			{"nNodes": 8},
+			{"nNodes": 9},
+			{"nNodes": 10},
+			{"nNodes": 11},
+			{"nNodes": 12},
+			{"nNodes": 13},
+			{"nNodes": 14},
+			{"nNodes": 15},
+			{"nNodes": 16},
+			{"nNodes": 17},
+			{"nNodes": 18},
+			{"nNodes": 19},
+			{"nNodes": 20}
+		]
+	}
 }

@@ -1,4 +1,4 @@
-#from Logger import Logger
+from Logger import Logger
 #import random
 import Filenames
 #import time
@@ -14,7 +14,7 @@ class Master(process):
         self.finished = False
 
         Filenames.createAllFolders(config)
-        # pass
+        self.logger = Logger(Filenames.getMasterLogFilename(config))
     
     def run():
         await(self.finished)
