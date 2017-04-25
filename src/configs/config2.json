@@ -1,11 +1,34 @@
 {
-	"name": "basic-cache-on",
+	"name": "nodes",
 	"nReq": 10000,
-	"caching": "on",
+	"subset": 1,
+	"levels": 4,
 	"hierarchical": {
-	
+		"domainCardinalities": [10, 1000, 1000, 1000]
 	},
-	"chord" : {
+	"chord": {
 		"nNodes": 10
-	}
+	},
+	"experiments": [
+		"chord": {"nNodes": 2},
+		"chord": {"nNodes": 3},
+		"chord": {"nNodes": 4},
+		"chord": {"nNodes": 5},
+		"chord": {"nNodes": 6},
+		"chord": {"nNodes": 7},
+		"chord": {"nNodes": 8},
+		"chord": {"nNodes": 9},
+		"chord": {"nNodes": 10},
+		"chord": {"nNodes": 11},
+		"chord": {"nNodes": 12},
+		"chord": {"nNodes": 13},
+		"chord": {"nNodes": 14},
+		"chord": {"nNodes": 15},
+		"chord": {"nNodes": 16},
+		"chord": {"nNodes": 17},
+		"chord": {"nNodes": 18},
+		"chord": {"nNodes": 19},
+		"chord": {"nNodes": 20}
+
+	]
 }

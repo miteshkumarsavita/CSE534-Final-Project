@@ -1,11 +1,22 @@
 {
-	"name": "basic-cache-off",
+	"name": "levels",
 	"nReq": 10000,
-	"caching": "off",
+	"subset": 1,
 	"hierarchical": {
-	
+		"domainCardinalities" : [10, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
 	},
-	"chord" : {
+	"chord": {
 		"nNodes": 10
-	}
+	},
+	"experiments": [
+		{"levels": 2},
+		{"levels": 3},
+		{"levels": 4},
+		{"levels": 5},
+		{"levels": 6},
+		{"levels": 7},
+		{"levels": 8},
+		{"levels": 9},
+		{"levels": 10}
+	]
 }

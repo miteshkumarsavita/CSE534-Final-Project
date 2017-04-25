@@ -1,0 +1,23 @@
+{
+	"name": "repeat",
+	"nReq": 10000,
+	"levels": 4,
+	"hierarchical": {
+		"domainCardinalities": [10, 1000, 1000, 1000]
+	},
+	"chord": {
+		"nNodes": 10
+	},
+	"experiments": [
+		{"subset": 0.10},
+		{"subset": 0.09},
+		{"subset": 0.08},
+		{"subset": 0.07},
+		{"subset": 0.06},
+		{"subset": 0.05},
+		{"subset": 0.04},
+		{"subset": 0.03},
+		{"subset": 0.02},
+		{"subset": 0.01},
+	]
+}
