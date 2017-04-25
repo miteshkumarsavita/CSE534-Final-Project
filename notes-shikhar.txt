@@ -121,10 +121,16 @@ SETUP OF THE EXPERIMENT
 
 -----Different kinds of processes-----
 
+EXPERIMENT-RUNNER
+main process that runs all the experiments
+Reads in a config file, and makes config objects for each experiment mentioned in `experiments` in the config, and also based on "RELATIONSHIP bw CONFIG AND EXPERIMENTS"
+For example, if the experiment is "levels" as mentioned in "EXPERIMENTS" section. Then, a new config is generated for each `level`, and 4 further configs for each
+So, if "levels" config has 10 experiments, then, we will be running 10 x 4 = 40 experiments
+-Passes each generated config to MASTER
+
 MASTER
-main process that creates/coordinates all other processes
-Reads in a config file, and makes four config objects based on section "RELATIONSHIP bw CONFIG AND EXPERIMENTS"
-It will run these four experiments, get stats from different processes at the end of the experiment, crunch numbers, and write to stat files
+main process that coordinates all other processes
+after running experiments, gets stats from different processes, crunches numbers, and writes to stat files
 
 CLIENT
 Used to generate lookups requests
