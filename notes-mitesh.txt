@@ -1,0 +1,5 @@
+- what to do in case of heirarchical DNS when an entry like google.co.jp comes. Are we handling such situations? 
+Will we be redirecting the query again to the tld server in this case?
+
+- In case of heirarchical DNS, what will be the structure of our record? What information will it contain regarding
+the next node? e.g. [name, next-node/ip-address] or something else.
