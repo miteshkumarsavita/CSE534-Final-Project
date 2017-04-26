@@ -1,5 +1,6 @@
 from Logger import Logger
 import Filenames
+import random
 
 class ChordDNS(process):
     def setup(config, master):
@@ -16,6 +17,13 @@ class ChordDNS(process):
     def run():
         self.logger.write(self.name + " running")
         await(self.finished)
+
+    def receive(msg=('LOOKUP_QUERY', query,), from_= client):
+        self.logger.write(self.name + " received ('LOOKUP_QUERY', " + str(query) + ",) from " + str(client))
+        #TODO: lookup
+        state = 'LOOKUP_RESULT'
+        self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
+        send((state, query,), to=query['client'])
 
     def receive(msg=('GET_STATS',), from_= master):
         self.logger.write(self.name + " received ('GET_STATS',) from " + str(master))

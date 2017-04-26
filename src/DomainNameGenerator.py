@@ -6,7 +6,6 @@ from RandomStringGenerator import RandomStringGenerator
 
 def generateTLDs(nTLD, seed):
     tlds = []
-    print(seed)
     r = RandomStringGenerator(seed, 3)
     for i in range(0, nTLD):
         tlds.append(r.getNext().lower())

@@ -1,7 +1,8 @@
 from Logger import Logger
 import Filenames
-import pickle
 import random
+import time
+from RequestGenerator import RequestGenerator
 
 class Client(process):
     def setup(config, dns, master):
@@ -12,31 +13,43 @@ class Client(process):
         self.logger = Logger(Filenames.getClientLogFilename(config))
         self.logger.write(self.name + " setup")
         self.finished = False
-        self.randomizer = random.Random()
-        self.randomizer.seed(config['seedClient'])
-        self.requests = getRequestsFromFile(config)
         self.curReqIndex = 0
 
-    def getRequestsFromFile(config):
-        filename = Filenames.getDomainNamesFilename(config)
-        fileHandle = open(filename, "rb")
-        requests = pickle.load(fileHandle)
-        fileHandle.close()
-        return requests
+        self.processingStartTime = None
+        self.processingEndTime = None
+        self.startCPUTime = None
+        self.endCPUTime = None
+
+        self.requestGenerator = RequestGenerator(Filenames.getDomainNamesFilename(config), config['subset'], config['seedClient'])
 
     def run():
         self.logger.write(self.name + " running")
-        for request in self.requests:
-            send(('LOOKUP'), to=self.dns)
+        self.startCPUTime = time.process_time()
+        self.processingStartTime = time.perf_counter()
+
+        for i in range(self.config['nReq']):
+            query = self.requestGenerator.getNext()
+            query['client'] = self
+            query['startTime'] = time.perf_counter()
+            state = 'LOOKUP_QUERY'
+            self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(self.dns))
+            send((state, query,), to=self.dns)
+        
         await(self.finished)
     
-    def receive(msg=('DNS_RESULT', result), from_= p):
-        self.logger.write(self.name + " received ('DNS_RESULT', " + str(result) + ",) from " + str(p))
+
+    def receive(msg=('LOOKUP_RESULT', query), from_= p):
+        self.logger.write(self.name + " received ('LOOKUP_RESULT', " + str(query) + ",) from " + str(p))
+        query['endTime'] = time.perf_counter()
+        #TODO: save this somewhere so that we can calculate latency
         self.curReqIndex += 1
-        if self.curReqIndex == len(self.requests):
+        if self.curReqIndex == self.config['nReq']:
             clientDone()
 
-    def clientDone()
+    def clientDone():
+        self.processingEndTime = time.perf_counter()
+        self.endCPUTime = time.process_time()
+
         state = 'CLIENT_DONE'
         stats = {'dummyValue':23}
         target = self.master

@@ -38,10 +38,10 @@ class Master(process):
         print("All experiments done!")
 
     def createBaseConfig(config):
-        attrsToKeep = ["name", "nReq", "subset", "levels", "nNames", "nTLD", "seeds"]
+        attrsToRemove = ["hierarchical", "chord", "experiments"]
         baseConfig = {}
         for k in config:
-            if k in attrsToKeep:
+            if k not in attrsToRemove:
                 baseConfig[k] = config[k]
         return baseConfig
 
@@ -124,7 +124,7 @@ class Master(process):
             return
         
         client = new(Client.Client, num=1)
-        setup(client, (exp, self,))
+        setup(client, (exp, self.curDNSExp, self,))
         start(client)
 
 
