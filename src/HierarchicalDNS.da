@@ -1,0 +1,11 @@
+from Logger import Logger
+
+class HierarchicalDNS(process):
+    def setup(config, master):
+        print("HierarchicalDNS setup")
+        self.master = master
+        self.config = config
+
+    def run():
+        print("HierarchicalDNS running")
+        await(False)

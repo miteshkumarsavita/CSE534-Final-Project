@@ -1,0 +1,11 @@
+from Logger import Logger
+
+class ChordDNS(process):
+    def setup(config, master):
+        print("ChordDNS setup")
+        self.master = master
+        self.config = config
+
+    def run():
+        print("ChordDNS running")
+        await(False)
