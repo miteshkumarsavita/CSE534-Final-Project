@@ -1,0 +1,2 @@
+Log file initialized at 2017-04-25 22:57:02
+[57:02.233796] HierarchicalDNS setup

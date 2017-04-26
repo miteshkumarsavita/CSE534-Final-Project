@@ -1,11 +1,19 @@
 from Logger import Logger
+import Filenames
 
 class ChordDNS(process):
     def setup(config, master):
-        print("ChordDNS setup")
         self.master = master
         self.config = config
+        self.name = "ChordDNS"
+        self.logger = Logger(Filenames.getDNSLogFilename(config))
+        self.logger.write(self.name + " setup")
+
 
     def run():
-        print("ChordDNS running")
-        await(False)
+        self.logger.write(self.name + " running")
+        state = 'EXPERIMENT_DONE'
+        target = self.master
+        self.logger.write(self.name + " sending ('" + state + "',) to " + str(target) )
+        send((state,), to=target)
+        #await(False)

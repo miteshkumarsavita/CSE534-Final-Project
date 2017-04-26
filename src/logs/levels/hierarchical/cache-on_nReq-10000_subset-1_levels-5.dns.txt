@@ -1,0 +1,4 @@
+Log file initialized at 2017-04-25 23:04:05
+[04:05.709364] HierarchicalDNS setup
+[04:05.743788] HierarchicalDNS running
+[04:05.745031] HierarchicalDNS sending ('EXPERIMENT_DONE',) to <Master:dd402>

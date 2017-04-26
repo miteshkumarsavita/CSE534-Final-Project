@@ -17,7 +17,7 @@ class Master(process):
     def setup(config):
         self.config = config
         self.finished = False
-
+        self.name = "Master"
         self.nextHExpIndex = 0
         self.nextCExpIndex = 0
 
@@ -26,8 +26,8 @@ class Master(process):
 
         self.hExps = createExperiments(config, hierarchical)
         self.cExps = createExperiments(config, chord)
-        print(str(len(self.hExps)) + " hierarchical experiments created")
-        print(str(len(self.cExps)) + " chord experiments created")
+        self.logger.write(str(len(self.hExps)) + " hierarchical experiments created")
+        self.logger.write(str(len(self.cExps)) + " chord experiments created")
     
     def createBaseConfig(config):
         attrsToKeep = ["name", "nReq", "subset", "levels", "seeds"]
@@ -54,12 +54,27 @@ class Master(process):
                 result.append(modifiedConfig)
 
                 #same as above but caching on
-                modifiedConfig = copy.deepcopy(baseConfig)
+                modifiedConfig = copy.deepcopy(modifiedConfig)
                 modifiedConfig['caching'] = True
                 result.append(modifiedConfig)
 
         return result
 
+
+    def receive(msg=('EXPERIMENT_DONE',), from_= p):
+        self.logger.write(self.name + " received ('EXPERIMENT_DONE',) from " + str(p))
+        #TODO: get stats from processes, write stats to files
+
+        incrementExperimentIndex()
+        startNextExperiment()
+
+    def incrementExperimentIndex():
+        if self.nextHExpIndex < len(self.hExps):
+            self.nextHExpIndex += 1
+        elif self.nextCExpIndex < len(self.cExps):
+            self.nextCExpIndex += 1
+        else:
+            self.finished = True
 
     def startNextExperiment():
         if self.nextHExpIndex < len(self.hExps):
@@ -75,7 +90,8 @@ class Master(process):
             cDNS = new(ChordDNS.ChordDNS, num=1)
             setup(cDNS, (exp, self,)) #TODO: domains file
             start(cDNS)
-
+        else:
+            self.finished = True
 
     def run():
         startNextExperiment()

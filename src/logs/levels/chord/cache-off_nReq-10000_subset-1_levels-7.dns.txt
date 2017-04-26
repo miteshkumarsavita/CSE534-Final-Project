@@ -1,0 +1,4 @@
+Log file initialized at 2017-04-25 23:04:07
+[04:07.279131] ChordDNS setup
+[04:07.313955] ChordDNS running
+[04:07.314320] ChordDNS sending ('EXPERIMENT_DONE',) to <Master:dd402>

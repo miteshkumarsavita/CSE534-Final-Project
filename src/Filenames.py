@@ -35,6 +35,8 @@ def getLogsFolderName(config):
     return getBaseLogsFolderName(config) + config['type'] + "/"
 def getClientLogFilename(config):
     return getLogsFolderName(config) + getBaseExperimentName(config) + ".client.txt"
+def getDNSLogFilename(config):
+    return getLogsFolderName(config) + getBaseExperimentName(config) + ".dns.txt"
 def getMasterLogFilename(config):
     return getBaseLogsFolderName(config) + "master.txt"
 
