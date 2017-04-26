@@ -63,6 +63,8 @@ class Master(process):
 
     def receive(msg=('EXPERIMENT_DONE',), from_= p):
         self.logger.write(self.name + " received ('EXPERIMENT_DONE',) from " + str(p))
+        print("Experiment done")
+        print()
         #TODO: get stats from processes, write stats to files
 
         incrementExperimentIndex()
@@ -82,6 +84,10 @@ class Master(process):
             exp = self.hExps[self.nextHExpIndex]
             hDNS = new(HierarchicalDNS.HierarchicalDNS, num=1)
             setup(hDNS, (exp, self,)) #TODO: domains file
+            
+            status = "Starting HierarchicalDNS experiment " + str(self.nextHExpIndex+1)
+            print(status)
+            self.logger.write(status)
             start(hDNS)
         
         elif self.nextCExpIndex < len(self.cExps):
@@ -89,6 +95,10 @@ class Master(process):
             exp = self.cExps[self.nextCExpIndex]
             cDNS = new(ChordDNS.ChordDNS, num=1)
             setup(cDNS, (exp, self,)) #TODO: domains file
+            
+            status = "Starting ChordDNS experiment " + str(self.nextCExpIndex+1)
+            print(status)
+            self.logger.write(status)
             start(cDNS)
         else:
             self.finished = True
