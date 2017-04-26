@@ -3,7 +3,7 @@ import os
 
 def getBaseExperimentName(config):
     cachingStr = "cache-on" if config['caching'] else "cache-off"
-    chordNodesStr = "_nNodes-" + str(config['chord']['nNodes']) if 'nNodes' in config['chord'] else ""
+    chordNodesStr = "_nNodes-" + str(config['nNodes']) if 'nNodes' in config else ""
     return cachingStr + chordNodesStr + "_nReq-" + str(config['nReq']) + "_subset-" + str(config['subset']) + "_levels-" + str(config['levels'])
 
 def createAllFolders(config):

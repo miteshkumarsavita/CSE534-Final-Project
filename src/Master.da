@@ -1,21 +1,83 @@
 from Logger import Logger
-#import random
 import Filenames
+import copy
+from pprint import pformat
+from config import *
+
 #import time
 #import os
 #import pickle
-#from pprint import pformat
 #from mapper import getCoordinatorIndex, getCoordinator
-#from config import *
+#import random
+
+HierarchicalDNS = import_da('HierarchicalDNS')
+ChordDNS = import_da('ChordDNS')
 
 class Master(process):
     def setup(config):
         self.config = config
         self.finished = False
 
+        self.nextHExpIndex = 0
+        self.nextCExpIndex = 0
+
         Filenames.createAllFolders(config)
         self.logger = Logger(Filenames.getMasterLogFilename(config))
+
+        self.hExps = createExperiments(config, hierarchical)
+        self.cExps = createExperiments(config, chord)
+        print(str(len(self.hExps)) + " hierarchical experiments created")
+        print(str(len(self.cExps)) + " chord experiments created")
     
+    def createBaseConfig(config):
+        attrsToKeep = ["name", "nReq", "subset", "levels", "seeds"]
+        baseConfig = {}
+        for k in config:
+            if k in attrsToKeep:
+                baseConfig[k] = config[k]
+        return baseConfig
+
+    def createExperiments(config, type):
+        result = []
+        baseConfig = createBaseConfig(config)
+        
+        exps = config['experiments'] if 'experiments' in config else None
+        if not exps: exps = config[type]['experiments'] if 'experiments' in config[type] else None
+        
+        if exps:
+            for exp in exps:
+                modifiedConfig = copy.deepcopy(baseConfig)
+                modifiedConfig['type'] = type
+                modifiedConfig['caching'] = False
+                for k in exp:
+                    modifiedConfig[k] = exp[k]
+                result.append(modifiedConfig)
+
+                #same as above but caching on
+                modifiedConfig = copy.deepcopy(baseConfig)
+                modifiedConfig['caching'] = True
+                result.append(modifiedConfig)
+
+        return result
+
+
+    def startNextExperiment():
+        if self.nextHExpIndex < len(self.hExps):
+            # we need to run a hierarchical DNS experiment
+            exp = self.hExps[self.nextHExpIndex]
+            hDNS = new(HierarchicalDNS.HierarchicalDNS, num=1)
+            setup(hDNS, (exp, self,)) #TODO: domains file
+            start(hDNS)
+        
+        elif self.nextCExpIndex < len(self.cExps):
+            # we need to run a Chord based DNS experiment
+            exp = self.cExps[self.nextCExpIndex]
+            cDNS = new(ChordDNS.ChordDNS, num=1)
+            setup(cDNS, (exp, self,)) #TODO: domains file
+            start(cDNS)
+
+
     def run():
+        startNextExperiment()
         await(self.finished)
 
