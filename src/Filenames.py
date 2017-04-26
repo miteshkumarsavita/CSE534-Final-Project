@@ -55,7 +55,7 @@ def getMessagePerRequestGraphFilename(config):
 
 # ------------  domain names ---------------
 def getDomainNamesFilename(config):
-    return domainNamesFolder + "/" + str(config['levels']) + ".pickle"
+    return domainNamesFolder + "/" + "levels-" + str(config['levels']) + "_nTLD-" + str(config['nTLD']) + ".pickle"
 
 
 def createFolderIfNotExists(folderName):
