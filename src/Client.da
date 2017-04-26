@@ -19,8 +19,8 @@ class Client(process):
         self.processingEndTime = None
         self.startCPUTime = None
         self.endCPUTime = None
-
         self.requestGenerator = RequestGenerator(Filenames.getDomainNamesFilename(config), config['subset'], config['seedClient'])
+        
 
     def run():
         self.logger.write(self.name + " running")

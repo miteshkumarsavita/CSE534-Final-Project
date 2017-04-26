@@ -3,6 +3,7 @@ import Filenames
 import random
 import pickle
 from Cache import LRUCache
+from pprint import pformat
 
 # Usage:
 # getNameBasedOnLevel("shikhar.io", 0) => "io"
@@ -13,20 +14,35 @@ def getNameBasedOnLevel(periodSeparatedName, level):
     return nameList[level] if (level < len(nameList) and level >= 0) else None
 
 class HierarchicalNode(process):
-    def setup(config, nextNode):
+    def setup(config, TLD, level, nextNode):
         self.finished = False
-        self.name = ""
+        self.name = "HierarchicalNode"
         self.nextNode = nextNode
+        self.TLD = TLD
+        self.level = level
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.names = set()
 
+        domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
+        domainsStruct = pickle.load(domainNamesFile)
+        domainNamesFile.close()
+
+        domainNames = domainsStruct['domainNames']
+        for domainName in domainNames:
+            tld = getNameBasedOnLevel(domainName, 0)
+            if tld == self.TLD:
+                partialName = getNameBasedOnLevel(domainName, level+1)
+                self.names.add(partialName)
+    
     def receive(msg=('NODE_LOOKUP_QUERY', query,), from_= dns):
-        self.logger.write(self.name + " received ('NODE_LOOKUP_QUERY', " + str(name) + ",) from " + str(dns))
-        name = getNameBasedOnLevel(query['name'], query['level'])
-        exists = True if name in self.names else False
+        self.logger.write(self.name + " received ('NODE_LOOKUP_QUERY', " + str(query) + ",) from " + str(dns))
+        
+        partialName = getNameBasedOnLevel(query['name'], query['level'])
+        exists = True if partialName in self.names else False
         nextNode = self.nextNode if exists else None
+        
         state = 'NODE_LOOKUP_RESULT'
-        self.logger.write(self.name + " sending ('" + state + "', " + str(exists) + ", " + str(nextNode) + ",) to " + str(dns))
+        self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ", " + str(exists) + ", " + str(nextNode) + ",) to " + str(dns))
         send((state, query, exists, nextNode,), to=dns)
 
     def receive(msg=('NODE_SHUTDOWN',), from_= dns):
@@ -43,27 +59,32 @@ class HierarchicalDNS(process):
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.logger.write(self.name + " setup")
         self.finished = False
-
         self.cache = LRUCache(config['LRUCacheSize'])
-
+    
         self.randomizer = random.Random()
         self.randomizer.seed(config['seedDNS'])
-
-        #TODO: populate from entries in domainNames file
+        
         domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
+    
         domainsStruct = pickle.load(domainNamesFile)
         domainNamesFile.close()
-
+        
         self.TLDs = domainsStruct['TLDs']
-        self.domainNames = domainsStruct['domainNames'] # TODO change this; dont need to store?
-
+        
         # create new nodes for each TLD
         # assign these nodes to TLDs
-        tldNodes = new(HierarchicalNode, num=len(self.TLDs))
-        tldNodesList = list(tldNodes)
         self.TLDNodes = {}
-        for i in range(len(self.TLDs)):
-            self.TLDNodes[self.TLDs[i]] = tldNodesList[i]
+        for tld in self.TLDs:
+            self.TLDNodes[tld] = list(new(HierarchicalNode, num=1))[0]
+            tldNodesList = list(new(HierarchicalNode, num=(config['levels']-2)))
+            tldNodesList.insert(0, self.TLDNodes[tld])
+            tldNodesList.append(None)
+            # now, tldNodesList looks like [comNode(containing google, apple,...), googleNode(containing www, mail,...),None]
+            for level in range(len(tldNodesList) - 1): # -1 because last element is None
+                node = tldNodesList[level]
+                nextNode = tldNodesList[level + 1]
+                setup(node, (config, tld, level, nextNode,))
+                start(node)
 
 
     def run():
