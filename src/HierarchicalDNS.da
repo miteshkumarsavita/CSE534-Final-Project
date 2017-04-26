@@ -1,6 +1,39 @@
 from Logger import Logger
 import Filenames
 import random
+import pickle
+from Cache import LRUCache
+
+# Usage:
+# getNameBasedOnLevel("shikhar.io", 0) => "io"
+# getNameBasedOnLevel("shikhar.io", 1) => "shikhar"
+# getNameBasedOnLevel("shikhar.io", 2) => None
+def getNameBasedOnLevel(periodSeparatedName, level):
+    nameList = periodSeparatedName.split(".")[::-1]
+    return nameList[level] if (level < len(nameList) and level >= 0) else None
+
+class HierarchicalNode(process):
+    def setup(config, nextNode):
+        self.finished = False
+        self.name = ""
+        self.nextNode = nextNode
+        self.logger = Logger(Filenames.getDNSLogFilename(config))
+        self.names = set()
+
+    def receive(msg=('NODE_LOOKUP_QUERY', query,), from_= dns):
+        self.logger.write(self.name + " received ('NODE_LOOKUP_QUERY', " + str(name) + ",) from " + str(dns))
+        name = getNameBasedOnLevel(query['name'], query['level'])
+        exists = True if name in self.names else False
+        nextNode = self.nextNode if exists else None
+        state = 'NODE_LOOKUP_RESULT'
+        self.logger.write(self.name + " sending ('" + state + "', " + str(exists) + ", " + str(nextNode) + ",) to " + str(dns))
+        send((state, query, exists, nextNode,), to=dns)
+
+    def receive(msg=('NODE_SHUTDOWN',), from_= dns):
+        self.finished = True
+
+    def run():
+        await(self.finished)
 
 class HierarchicalDNS(process):
     def setup(config, master):
@@ -11,8 +44,27 @@ class HierarchicalDNS(process):
         self.logger.write(self.name + " setup")
         self.finished = False
 
+        self.cache = LRUCache(config['LRUCacheSize'])
+
         self.randomizer = random.Random()
         self.randomizer.seed(config['seedDNS'])
+
+        #TODO: populate from entries in domainNames file
+        domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
+        domainsStruct = pickle.load(domainNamesFile)
+        domainNamesFile.close()
+
+        self.TLDs = domainsStruct['TLDs']
+        self.domainNames = domainsStruct['domainNames'] # TODO change this; dont need to store?
+
+        # create new nodes for each TLD
+        # assign these nodes to TLDs
+        tldNodes = new(HierarchicalNode, num=len(self.TLDs))
+        tldNodesList = list(tldNodes)
+        self.TLDNodes = {}
+        for i in range(len(self.TLDs)):
+            self.TLDNodes[self.TLDs[i]] = tldNodesList[i]
+
 
     def run():
         self.logger.write(self.name + " running")
@@ -20,11 +72,57 @@ class HierarchicalDNS(process):
     
     def receive(msg=('LOOKUP_QUERY', query,), from_= client):
         self.logger.write(self.name + " received ('LOOKUP_QUERY', " + str(query) + ",) from " + str(client))
-        #TODO: lookup
+        
+        if self.config['caching']:
+            result = self.cache.get(query['name'])
+            if result != None:
+                query['result'] = result
+                sendResponseToClient(query)
+                return
+
+        query['level'] = 0
+        partialName = getNameBasedOnLevel(query['name'], query['level'])
+        
+        if partialName in self.TLDNodes:
+            query['level'] += 1
+            state = 'NODE_LOOKUP_QUERY'
+            nextNode = self.TLDNodes[partialName]
+            self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(nextNode))
+            send((state, query,), to=nextNode)
+        else:
+            if self.config['caching']:
+                self.cache.put(query['name'], False)
+            query['result'] = False
+            sendResponseToClient(query)
+
+
+    def sendResponseToClient(query):
         state = 'LOOKUP_RESULT'
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
-    
+
+    def receive(msg=('NODE_LOOKUP_RESULT', query, exists, nextNode,), from_= client):
+        if exists:
+            if nextNode:
+                query['level'] += 1
+                state = 'NODE_LOOKUP_QUERY'
+                self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(nextNode))
+                send((state, query,), to=nextNode)
+            else:
+                # lookup complete
+                query['result'] = True
+                if self.config['caching']:
+                    self.cache.put(query['name'], True)
+                sendResponseToClient(query)
+
+        else: # not found
+            # return failure to client 
+            if self.config['caching']:
+                self.cache.put(query['name'], False)
+            query['result'] = False
+            sendResponseToClient(query)
+
+
     def receive(msg=('GET_STATS',), from_= master):
         self.logger.write(self.name + " received ('GET_STATS',) from " + str(master))
         state = 'STATS_RESULT'
