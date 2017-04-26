@@ -8,8 +8,10 @@ class ChordDNS(process):
         self.name = "<ChordDNS>"
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.logger.write(self.name + " setup")
-
         self.finished = False
+
+        self.randomizer = random.Random()
+        self.randomizer.seed(config['seedDNS'])
 
     def run():
         self.logger.write(self.name + " running")

@@ -1,22 +1,42 @@
 from Logger import Logger
 import Filenames
+import pickle
+import random
 
 class Client(process):
-    def setup(config, master):
+    def setup(config, dns, master):
         self.master = master
         self.config = config
+        self.dns = dns
         self.name = "<Client>"
         self.logger = Logger(Filenames.getClientLogFilename(config))
         self.logger.write(self.name + " setup")
-
         self.finished = False
+        self.randomizer = random.Random()
+        self.randomizer.seed(config['seedClient'])
+        self.requests = getRequestsFromFile(config)
+        self.curReqIndex = 0
+
+    def getRequestsFromFile(config):
+        filename = Filenames.getDomainNamesFilename(config)
+        fileHandle = open(filename, "rb")
+        requests = pickle.load(fileHandle)
+        fileHandle.close()
+        return requests
 
     def run():
         self.logger.write(self.name + " running")
-        placeholder_func()
+        for request in self.requests:
+            send(('LOOKUP'), to=self.dns)
         await(self.finished)
     
-    def placeholder_func():
+    def receive(msg=('DNS_RESULT', result), from_= p):
+        self.logger.write(self.name + " received ('DNS_RESULT', " + str(result) + ",) from " + str(p))
+        self.curReqIndex += 1
+        if self.curReqIndex == len(self.requests):
+            clientDone()
+
+    def clientDone()
         state = 'CLIENT_DONE'
         stats = {'dummyValue':23}
         target = self.master

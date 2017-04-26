@@ -33,7 +33,7 @@ def generateDomainNames(count, levels, nTLD, seed):
     return ans
 
 def createDomainNameFile(filename, config):
-    ans = generateDomainNames(config['nNames'], config['levels'], config['nTLD'], config['seeds'][0])
+    ans = generateDomainNames(config['nNames'], config['levels'], config['nTLD'], config['seedNames'])
     f = open(filename, 'wb')
     f.truncate()
     pickle.dump(ans, f)
