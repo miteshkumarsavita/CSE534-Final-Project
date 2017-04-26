@@ -1,6 +1,7 @@
 import os
 import Filenames
 import random
+import pickle
 from RandomStringGenerator import RandomStringGenerator
 
 def generateTLDs(nTLD, seed):
@@ -9,7 +10,7 @@ def generateTLDs(nTLD, seed):
     r = RandomStringGenerator(seed, 3)
     for i in range(0, nTLD):
         tlds.append(r.getNext().lower())
-    print(tlds)
+    #print(tlds)
     return tlds
 
 '''
@@ -32,7 +33,6 @@ def generateDomainNames(count, levels, nTLD, seed):
     return ans
 
 def createDomainNameFile(filename, config):
-    #TODO: Mitesh
     ans = generateDomainNames(config['nNames'], config['levels'], config['nTLD'], config['seeds'][0])
     f = open(filename, 'wb')
     f.truncate()

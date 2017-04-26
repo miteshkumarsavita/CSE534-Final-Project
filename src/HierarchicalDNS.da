@@ -9,11 +9,20 @@ class HierarchicalDNS(process):
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.logger.write(self.name + " setup")
 
+        self.finished = False
 
     def run():
         self.logger.write(self.name + " running")
         state = 'EXPERIMENT_DONE'
         target = self.master
-        self.logger.write(self.name + " sending ('" + state + "',) to " + str(target) )
+        self.logger.write(self.name + " sending ('" + state + "',) to " + str(target))
         send((state,), to=target)
-        #await(False)
+        await(self.finished)
+    
+    def receive(msg=('GET_STATS',), from_= master):
+        self.logger.write(self.name + " received ('GET_STATS',) from " + str(master))
+        state = 'STATS_RESULT'
+        stats = {'dummyValue':23}
+        self.logger.write(self.name + " sending ('" + state + "',) to " + str(master))
+        send((state, stats,), to=master)
+        self.finished = True

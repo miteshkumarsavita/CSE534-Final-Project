@@ -30,6 +30,11 @@ class Master(process):
         self.logger.write(str(len(self.hExps)) + " hierarchical experiments created")
         self.logger.write(str(len(self.cExps)) + " chord experiments created")
     
+    def run():
+        startNextExperiment()
+        await(self.finished)
+        print("All experiments done!")
+
     def createBaseConfig(config):
         attrsToKeep = ["name", "nReq", "subset", "levels", "nNames", "nTLD", "seeds"]
         baseConfig = {}
@@ -62,9 +67,16 @@ class Master(process):
 
     def receive(msg=('EXPERIMENT_DONE',), from_= p):
         self.logger.write(self.name + " received ('EXPERIMENT_DONE',) from " + str(p))
-        print("Experiment done")
+        self.logger.write(self.name + " sending ('GET_STATS',) to " + str(p) )
+        send(('GET_STATS',), to= p)
+
+
+    def receive(msg=('STATS_RESULT',stats,), from_= p):
+        self.logger.write(self.name + " received ('STATS_RESULT'," + str(stats) + ") from " + str(p))
+        #TODO: write stats to file
+        
+        print("Experiment Done")
         print()
-        #TODO: get stats from processes, write stats to files
 
         incrementExperimentIndex()
         startNextExperiment()
@@ -105,8 +117,4 @@ class Master(process):
             start(cDNS)
         else:
             self.finished = True
-
-    def run():
-        startNextExperiment()
-        await(self.finished)
 
