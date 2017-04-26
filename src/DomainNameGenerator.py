@@ -15,7 +15,7 @@ def generateTLDs(nTLD, seed):
 returns a list of domain names
 '''
 def generateDomainNames(count, levels, nTLD, seed):
-    ans = []
+    domainNames = []
     tlds = generateTLDs(nTLD, seed)
     r = RandomStringGenerator(seed)
     for i in range(0, count):
@@ -27,8 +27,8 @@ def generateDomainNames(count, levels, nTLD, seed):
             t += ord(char)
         t = t%nTLD
         name = name + tlds[t]
-        ans.append(name)
-    return ans
+        domainNames.append(name)
+    return {'domainNames': domainNames, 'TLDs':tlds}
 
 def createDomainNameFile(filename, config):
     ans = generateDomainNames(config['nNames'], config['levels'], config['nTLD'], config['seedNames'])
