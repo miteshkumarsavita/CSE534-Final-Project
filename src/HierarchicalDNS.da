@@ -5,7 +5,7 @@ class HierarchicalDNS(process):
     def setup(config, master):
         self.master = master
         self.config = config
-        self.name = "HierarchicalDNS"
+        self.name = "<HierarchicalDNS>"
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.logger.write(self.name + " setup")
 
@@ -13,10 +13,6 @@ class HierarchicalDNS(process):
 
     def run():
         self.logger.write(self.name + " running")
-        state = 'EXPERIMENT_DONE'
-        target = self.master
-        self.logger.write(self.name + " sending ('" + state + "',) to " + str(target))
-        send((state,), to=target)
         await(self.finished)
     
     def receive(msg=('GET_STATS',), from_= master):

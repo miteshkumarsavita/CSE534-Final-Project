@@ -1,0 +1,25 @@
+from Logger import Logger
+import Filenames
+
+class Client(process):
+    def setup(config, master):
+        self.master = master
+        self.config = config
+        self.name = "<Client>"
+        self.logger = Logger(Filenames.getClientLogFilename(config))
+        self.logger.write(self.name + " setup")
+
+        self.finished = False
+
+    def run():
+        self.logger.write(self.name + " running")
+        placeholder_func()
+        await(self.finished)
+    
+    def placeholder_func():
+        state = 'CLIENT_DONE'
+        stats = {'dummyValue':23}
+        target = self.master
+        self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ",) to " + str(target))
+        send((state,stats,), to=target)
+        self.finished = True
