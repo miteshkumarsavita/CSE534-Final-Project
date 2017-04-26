@@ -11,7 +11,7 @@ class RandomStringGenerator:
     def getNext(self):
         res = ""
         for i in range(self.length):
-            res += random.choice(ascii_letters)
+            res += self.randomizer.choice(ascii_letters)
         return res
 
 '''
