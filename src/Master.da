@@ -3,6 +3,7 @@ import Filenames
 import copy
 from pprint import pformat
 from config import *
+from DomainNameGenerator import createDomainNameFileIfNotExists
 
 #import time
 #import os
@@ -82,6 +83,7 @@ class Master(process):
         if self.nextHExpIndex < len(self.hExps):
             # we need to run a hierarchical DNS experiment
             exp = self.hExps[self.nextHExpIndex]
+            DomainNameGenerator.createDomainNameFileIfNotExists(exp)
             hDNS = new(HierarchicalDNS.HierarchicalDNS, num=1)
             setup(hDNS, (exp, self,)) #TODO: domains file
             

@@ -53,6 +53,10 @@ def getLatencyGraphFilename(config):
 def getMessagePerRequestGraphFilename(config):
     return getGraphsFolderName(config) + "messagesPerRequest.png"
 
+# ------------  domain names ---------------
+def getDomainNamesFilename(config):
+    return domainNamesFolder + "/" + str(config['levels']) + ".pickle"
+
 
 def createFolderIfNotExists(folderName):
     directory = os.path.dirname(folderName)
