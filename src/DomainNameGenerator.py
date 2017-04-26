@@ -8,8 +8,7 @@ def generateTLDs(nTLD, seed):
     tlds = []
     r = RandomStringGenerator(seed, 3)
     for i in range(0, nTLD):
-        tlds.append(r.getNext().lower())
-    #print(tlds)
+        tlds.append(r.getNext())
     return tlds
 
 '''
@@ -22,9 +21,9 @@ def generateDomainNames(count, levels, nTLD, seed):
     for i in range(0, count):
         name = ''
         for j in range(0, levels-1):
-            name = name + r.getNext().lower() + '.'
+            name = name + r.getNext() + '.'
         t = 0
-        for char in r.getNext().lower():
+        for char in r.getNext():
             t += ord(char)
         t = t%nTLD
         name = name + tlds[t]

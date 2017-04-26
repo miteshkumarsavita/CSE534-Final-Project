@@ -1,4 +1,4 @@
-from string import ascii_letters
+from string import ascii_lowercase
 import random
 from datetime import datetime
 
@@ -11,7 +11,7 @@ class RandomStringGenerator:
     def getNext(self):
         res = ""
         for i in range(self.length):
-            res += self.randomizer.choice(ascii_letters)
+            res += self.randomizer.choice(ascii_lowercase)
         return res
 
 '''
