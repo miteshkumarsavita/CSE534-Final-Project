@@ -10,12 +10,26 @@ class FingerTableEntry:
         self.hashedVal = hashedVal
 
 class FingerTable:
-    def __init__(self, nodes, node):
-        pass
+    def __init__(self, nodes, selfNode):
+        self.table = []
         
+        # rotate the list of nodes so that node is at the head of the list
+        nodes = rotate(nodes, -1 * nodes.index(selfNode))
+        
+        for i in range(chordSystemVarM):
+            node  = None #TODO: Mitesh
+            self.table.append(FingerTableEntry(node, hasher.getHashChord(node, chordSystemVarM)))
+
+    def getClosestPrecedingNode(self, val):
+        pass
+        #TODO: shikhar
+        
+    def rotate(l, n):
+        return l[-n:] + l[:-n]
 
 class ChordNode(process):
     def setup(config, nodes):
+        self.name = "<ChordNode>"
         self.finished = False
         self.fingerTable = FingerTable(nodes, self)
         
