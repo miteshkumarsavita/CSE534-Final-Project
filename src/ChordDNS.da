@@ -5,9 +5,13 @@ import hasher
 from config import *
 
 class ChordNode(process):
-    def setup():
+    def setup(config, nodes):
+        # TODO: setup finger tables
         self.finished = False
-    
+        domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
+        domainsStruct = pickle.load(domainNamesFile)
+        domainNamesFile.close()
+
     def run():
         await(self.finished)
 
@@ -25,7 +29,9 @@ class ChordDNS(process):
 
         self.nodes = list(new(ChordNode, num=config['nNodes']))
         self.nodes.sort(key=lambda obj : hasher.getHashChord(obj, chordSystemVarM))
-        # now nodes are sorted based on their hashed values
+        for node in self.nodes:
+            setup(node, (config, self.nodes,))
+            start(node)
 
 
     def run():
