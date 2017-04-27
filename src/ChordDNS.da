@@ -1,6 +1,15 @@
 from Logger import Logger
 import Filenames
 import random
+import hasher
+from config import *
+
+class ChordNode(process):
+    def setup():
+        self.finished = False
+    
+    def run():
+        await(self.finished)
 
 class ChordDNS(process):
     def setup(config, master):
@@ -13,6 +22,11 @@ class ChordDNS(process):
 
         self.randomizer = random.Random()
         self.randomizer.seed(config['seedDNS'])
+
+        self.nodes = list(new(ChordNode, num=config['nNodes']))
+        self.nodes.sort(key=lambda obj : hasher.getHashChord(obj, chordSystemVarM))
+        # now nodes are sorted based on their hashed values
+
 
     def run():
         self.logger.write(self.name + " running")

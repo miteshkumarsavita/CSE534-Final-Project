@@ -8,3 +8,5 @@ hierarchicalFolderName = "hierarchical"
 
 chord = "chord"
 hierarchical = "hierarchical"
+
+chordSystemVarM = 25
