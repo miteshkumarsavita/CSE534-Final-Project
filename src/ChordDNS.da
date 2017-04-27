@@ -40,7 +40,13 @@ class ChordDNS(process):
 
     def receive(msg=('LOOKUP_QUERY', query,), from_= client):
         self.logger.write(self.name + " received ('LOOKUP_QUERY', " + str(query) + ",) from " + str(client))
-        #TODO: lookup
+        node = self.randomizer.choice(self.nodes)
+        state  = 'NODE_LOOKUP_QUERY'
+        #TODO: add self path
+        self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(node))
+        send(('NODE_LOOKUP_QUERY', query,), to=node)
+        return
+        # TODO: move following code to wherever you get result
         state = 'LOOKUP_RESULT'
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
