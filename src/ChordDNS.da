@@ -23,6 +23,8 @@ class FingerTableEntry:
     def __init__(self, node, hashedVal):
         self.node = node
         self.hashedVal = hashedVal
+    def __repr__(self):
+        return str(self.node) + ": " + str(self.hashedVal)
 
 class FingerTable:
     def __init__(self, nodes, selfNode):
@@ -101,8 +103,13 @@ class ChordDNS(process):
         #TODO: add self path
         self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(node))
         send(('NODE_LOOKUP_QUERY', query,), to=node)
-        return
-        # TODO: move following code to wherever you get result
+        
+
+    def receive(msg=('NODE_LOOKUP_RESULT', query,), from_= internalNode):
+        pass
+
+
+        #TODO: this code only runs when this is final result
         state = 'LOOKUP_RESULT'
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
