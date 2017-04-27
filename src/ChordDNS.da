@@ -4,11 +4,17 @@ import random
 import hasher
 from config import *
 
-def inRangeModulo(element, rangeStart, rangeEnd):
+def inRangeExclusiveModulo(value, rangeStart, rangeEnd):
     if rangeStart < rangeEnd:
-        return rangeStart < element and element < rangeEnd
+        return rangeStart < value and value < rangeEnd
     else:
-        return not (rangeEnd <= element and element <= rangeStart)
+        return not (rangeEnd <= value and value <= rangeStart)
+
+def inRangeRightInclusiveModulo(value, rangeStart, rangeEnd):
+    if rangeStart < rangeEnd:
+        return rangeStart < value and value <= rangeEnd
+    else:
+        return not (rangeEnd < value and value <= rangeStart)
 
 def rotateList(list, index):
     return list[-index:] + list[:-index]
@@ -34,7 +40,7 @@ class FingerTable:
         lookupHashedVal = hasher.getHashChord(val, chordSystemVarM)
         for i in range(len(self.table)-1, -1, -1):
             entry = self.table[i]
-            if inRangeModulo(entry.hashedVal, selfHash, lookupHashedVal):
+            if inRangeExclusiveModulo(entry.hashedVal, selfHash, lookupHashedVal):
                 return entry.node
         return None # shouldn't happen? TODO:confirm
 
@@ -42,13 +48,25 @@ class ChordNode(process):
     def setup(config, nodes):
         self.name = "<ChordNode>"
         self.finished = False
-        self.fingerTable = FingerTable(nodes, self)
-        
+        self.names = set()
+        # rotate the list of nodes so that selfNode is at the head of the list
+        nodes = rotateList(nodes, -1 * nodes.index(self))
+
+        #TODO: save domainNames that belong to this node
         domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
         domainsStruct = pickle.load(domainNamesFile)
         domainNamesFile.close()
+        domainNames = domainsStruct['domainNames']
 
-        #TODO: save domainNames that belong to this node
+        selfNodeHash = hasher.getHashChord(nodes[0], chordSystemVarM)
+        predecessorNodeHash = hasher.getHashChord(nodes[-1], chordSystemVarM)
+        for domainName in domainNames:
+            hashedVal = hasher.getHashChord(domainName, chordSystemVarM)
+            if inRangeRightInclusiveModulo(hashedVal, predecessorNodeHash, selfNodeHash):
+                self.names.add(domainName)
+
+        self.fingerTable = FingerTable(nodes, self)
+        
 
     def run():
         await(self.finished)
