@@ -10,20 +10,20 @@ class FingerTableEntry:
         self.hashedVal = hashedVal
 
 class FingerTable:
-    def __init__(self, nodes):
+    def __init__(self, nodes, node):
         pass
-
+        
 
 class ChordNode(process):
     def setup(config, nodes):
         self.finished = False
-        self.fingerTable = FingerTable(nodes)
+        self.fingerTable = FingerTable(nodes, self)
         
         domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
         domainsStruct = pickle.load(domainNamesFile)
         domainNamesFile.close()
 
-        # TODO: setup finger tables
+        #TODO: save domainNames that belong to this node
 
     def run():
         await(self.finished)
