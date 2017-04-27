@@ -12,8 +12,8 @@ class FingerTableEntry:
 class FingerTable:
     def __init__(self, nodes, selfNode):
         self.table = []
-        
-        # rotate the list of nodes so that node is at the head of the list
+        self.selfHash = hasher.getHashChord(selfNode, chordSystemVarM)
+        # rotate the list of nodes so that selfNode is at the head of the list
         nodes = rotate(nodes, -1 * nodes.index(selfNode))
         
         for i in range(chordSystemVarM):
@@ -21,9 +21,17 @@ class FingerTable:
             self.table.append(FingerTableEntry(node, hasher.getHashChord(node, chordSystemVarM)))
 
     def getClosestPrecedingNode(self, val):
+        # start from the end
+        lookupHashedVal = hasher.getHashChord(val, chordSystemVarM)
+        for i in range(len(self.table)-1, -1, -1):
+            entry = self.table[i]
+            if inRangeModulo(entry.hashedVal, (selfHash, lookupHashedVal), 2**chordSystemVarM):
+                return entry.node
+        return None # shouldn't happen? TODO:confirm
+
+    def inRangeModulo(element, (rangeStart, rangeEnd), base):
         pass
-        #TODO: shikhar
-        
+
     def rotate(l, n):
         return l[-n:] + l[:-n]
 
