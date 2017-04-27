@@ -16,7 +16,7 @@ def getNameBasedOnLevel(periodSeparatedName, level):
 class HierarchicalNode(process):
     def setup(config, TLD, level, nextNode):
         self.finished = False
-        self.name = "HierarchicalNode"
+        self.name = "<HierarchicalNode>"
         self.nextNode = nextNode
         self.TLD = TLD
         self.level = level
@@ -122,7 +122,7 @@ class HierarchicalDNS(process):
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
 
-    def receive(msg=('NODE_LOOKUP_RESULT', query, exists, nextNode,), from_= client):
+    def receive(msg=('NODE_LOOKUP_RESULT', query, exists, nextNode,), from_= internalNode):
         if exists:
             if nextNode:
                 query['level'] += 1
