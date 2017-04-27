@@ -4,6 +4,15 @@ import random
 import hasher
 from config import *
 
+def inRangeModulo(element, rangeStart, rangeEnd):
+    if rangeStart < rangeEnd:
+        return rangeStart < element and element < rangeEnd
+    else:
+        return not (rangeEnd <= element and element <= rangeStart)
+
+def rotateList(list, index):
+    return list[-index:] + list[:-index]
+
 class FingerTableEntry:
     def __init__(self, node, hashedVal):
         self.node = node
@@ -14,7 +23,7 @@ class FingerTable:
         self.table = []
         self.selfHash = hasher.getHashChord(selfNode, chordSystemVarM)
         # rotate the list of nodes so that selfNode is at the head of the list
-        nodes = rotate(nodes, -1 * nodes.index(selfNode))
+        nodes = rotateList(nodes, -1 * nodes.index(selfNode))
         
         for i in range(chordSystemVarM):
             node  = None #TODO: Mitesh
@@ -25,15 +34,9 @@ class FingerTable:
         lookupHashedVal = hasher.getHashChord(val, chordSystemVarM)
         for i in range(len(self.table)-1, -1, -1):
             entry = self.table[i]
-            if inRangeModulo(entry.hashedVal, (selfHash, lookupHashedVal), 2**chordSystemVarM):
+            if inRangeModulo(entry.hashedVal, selfHash, lookupHashedVal):
                 return entry.node
         return None # shouldn't happen? TODO:confirm
-
-    def inRangeModulo(element, (rangeStart, rangeEnd), base):
-        pass
-
-    def rotate(l, n):
-        return l[-n:] + l[:-n]
 
 class ChordNode(process):
     def setup(config, nodes):
