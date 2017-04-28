@@ -13,10 +13,12 @@ WHAT TO MEASURE (RECORD)
 latency : min, max, mean, std dev
 throughput: number of requests processed per second
 hopsPerLookup: number of nodes that had to be contacted to fulfill this request
+resolvedByCache (boolean)
 
 ----for each node------
-number of messages sent (this can be used later to calculate avg message per request)
+#number of messages sent (this can be used later to calculate avg message per request)
 CPU time: time used by the process (just to get an idea of how much work C does as compared to H)
+Queries processed by this node
 
 HOW TO MEASURE
 time: https://docs.python.org/3.6/library/time.html#time.perf_counter
@@ -152,7 +154,6 @@ It will also have stat message handlers which will be called at the end by maste
 This will be a simple chord ring based on the paper "Chord: A Scalable Peer-to-Peer Lookup Protocol for Internet Applications" by Stoica et al.
 
 ---------------------------------------------------------
-
-
-
-
+TODO: measure
+resolvedByCache (boolean)
+Queries processed by this node

@@ -75,6 +75,7 @@ class HierarchicalDNS(process):
         # assign these nodes to TLDs
         self.TLDNodes = {}
         for tld in self.TLDs:
+            #TODO: save this node so that we can send GET_STATS: already saved!!
             self.TLDNodes[tld] = list(new(HierarchicalNode, num=1))[0]
             tldNodesList = list(new(HierarchicalNode, num=(config['levels']-2)))
             tldNodesList.insert(0, self.TLDNodes[tld])
@@ -85,7 +86,7 @@ class HierarchicalDNS(process):
                 nextNode = tldNodesList[level + 1]
                 setup(node, (config, tld, level, nextNode,))
                 start(node)
-
+                #TODO: save this node so that we can send GET_STATS
 
     def run():
         self.logger.write(self.name + " running")
