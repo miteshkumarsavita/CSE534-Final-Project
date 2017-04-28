@@ -117,11 +117,13 @@ class ChordNode(process):
         if inRangeRightInclusiveModulo(query['hashedVal'], self.selfNodeHash, successorEntry.hashedVal):
             # successor is responsible for this name
             state  = 'NODE_LOOKUP_FINAL'
+            query['numHops'] += 1
             self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(successorEntry.node))
             send((state, query,), to=successorEntry.node)
         else:
             node = self.fingerTable.getClosestPrecedingNode(query['hashedVal'])
             state  = 'NODE_LOOKUP_QUERY'
+            query['numHops'] += 1
             self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(node))
             send((state, query,), to=node)
 
@@ -144,6 +146,7 @@ class ChordNode(process):
 
     def sendResponseToClient(query):
         state = 'LOOKUP_RESULT'
+        query['numHops'] += 1
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
         
@@ -179,6 +182,7 @@ class ChordDNS(process):
         query['hashedVal'] = hasher.getHashChord(query['name'], chordSystemVarM)
         node = self.randomizer.choice(self.nodes)
         state  = 'NODE_LOOKUP_QUERY'
+        query['numHops'] += 1
         self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(node))
         send((state, query,), to=node)
         
@@ -187,6 +191,7 @@ class ChordDNS(process):
     def receive(msg=('NODE_LOOKUP_RESULT', query,), from_= internalNode):
         #TODO: this code only runs when this is final result
         state = 'LOOKUP_RESULT'
+        query['numHops'] += 1
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
 
