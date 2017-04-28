@@ -3,6 +3,7 @@ import Filenames
 import random
 import time
 from RequestGenerator import RequestGenerator
+import numpy as np
 
 class Client(process):
     def setup(config, dns, master):
@@ -14,6 +15,8 @@ class Client(process):
         self.logger.write(self.name + " setup")
         self.finished = False
         self.curReqIndex = 0
+        self.latencies = []
+        self.numHops = []
 
         self.processingStartTime = None
         self.processingEndTime = None
@@ -31,6 +34,7 @@ class Client(process):
             query = self.requestGenerator.getNext()
             query['client'] = self
             query['startTime'] = time.perf_counter()
+            query['numHops'] = 1
             state = 'LOOKUP_QUERY'
             self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(self.dns))
             send((state, query,), to=self.dns)
@@ -42,6 +46,8 @@ class Client(process):
         self.logger.write(self.name + " received ('LOOKUP_RESULT', " + str(query) + ",) from " + str(p))
         query['endTime'] = time.perf_counter()
         #TODO: save this somewhere so that we can calculate latency
+        self.latencies.append(query['endTime'] - query['startTime'])
+        self.numHops.append(query['numHops'])
         self.curReqIndex += 1
         if self.curReqIndex == self.config['nReq']:
             clientDone()
@@ -49,15 +55,22 @@ class Client(process):
     def clientDone():
         self.processingEndTime = time.perf_counter()
         self.endCPUTime = time.process_time()
-        stats = {'latencyStats': {'min':None, 'max':None, 'mean':None 'stddev':None}, 'throughput':None}
+        stats = {'latencyStats': {'min':None, 'max':None, 'mean':None 'stddev':None}, 
+                 'throughput':None
+                 'nHops': {'min':None, 'max':None, 'mean':None 'stddev':None}}
         
         #TODO:crunch numbers
-        
-        # for example
-        #numpy.amin(latencies),
-        #numpy.amax(latencies),
-        #numpy.mean(latencies),
-        #numpy.std(latencies)
+        stats['latencyStats']['min'] = np.min(self.latencies)
+        stats['latencyStats']['max'] = np.max(self.latencies)
+        stats['latencyStats']['mean'] = np.mean(self.latencies)
+        stats['latencyStats']['stddev'] = np.std(self.latencies)
+
+        stats['throughput'] = self.config['nReq']/(self.processingEndTime - self.processingStartTime)
+
+        stats['nHops']['min'] = np.min(self.numHops)
+        stats['nHops']['max'] = np.max(self.numHops)
+        stats['nHops']['mean'] = np.mean(self.numHops)
+        stats['nHops']['stddev'] = np.std(self.numHops)
 
         target = self.master
         state = 'CLIENT_DONE'
