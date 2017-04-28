@@ -74,6 +74,8 @@ class ChordNode(process):
         self.cache = LRUCache(config['LRUCacheSize'])
         self.caching = config['caching']
         self.logger = Logger(Filenames.getDNSLogFilename(config))
+        self.startCPUTime = None
+        self.endCPUTime = None
 
         # rotate the list of nodes so that selfNode is at the head of the list
         nodes = rotateList(nodes, -1 * nodes.index(self))
@@ -144,6 +146,17 @@ class ChordNode(process):
         # no need to check self.caching. This is only called when caching is turned on
         self.cache.put(query['name'], query['result'])
 
+    def receive(msg=('GET_STATS',), from_= DNS):
+        self.endCPUTime = time.process_time()
+        self.logger.write(self.name + " received ('GET_STATS',) from " + str(DNS))
+        state = 'STATS_RESULT'
+        stats = {'CPUTime':None, 'cardinality':None}
+        stats['CPUTime'] = self.endCPUTime - self.startCPUTime
+        stats['cardinality'] = len(self.names)
+        self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ") to " + str(DNS))
+        send((state, stats,), to=DNS)
+        self.finished = True
+
     def sendResponseToClient(query):
         state = 'LOOKUP_RESULT'
         query['numHops'] += 1
@@ -152,6 +165,7 @@ class ChordNode(process):
         
 
     def run():
+        self.startCPUTime = time.process_time()
         await(self.finished)
 
 class ChordDNS(process):
@@ -162,6 +176,9 @@ class ChordDNS(process):
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.logger.write(self.name + " setup")
         self.finished = False
+        self.CPUTimes = []
+        self.cardinalities = []
+        self.statsReceivedCount = 0
 
         self.randomizer = random.Random()
         self.randomizer.seed(config['seedDNS'])
@@ -197,8 +214,22 @@ class ChordDNS(process):
 
     def receive(msg=('GET_STATS',), from_= master):
         self.logger.write(self.name + " received ('GET_STATS',) from " + str(master))
-        state = 'STATS_RESULT'
-        stats = {'dummyValue':23}
-        self.logger.write(self.name + " sending ('" + state + "',) to " + str(master))
-        send((state, stats,), to=master)
-        self.finished = True
+        state = 'GET_STATS'
+        # stats = {'dummyValue':23}
+        # send((state, stats,), to=master)
+        # self.finished = True
+        for node in self.nodes:
+            self.logger.write(self.name + " sending ('" + state + "',) to " + str(node))
+            send((state,), to=node)
+
+    def receive(msg=('STATS_RESULT', stats), from_= node):
+        self.logger.write(self.name + " received ('GET_STATS', " + str(stats) + ") from " + str(node))
+        self.CPUTimes.append(stats['CPUTime'])
+        self.cardinalities.append(stats['cardinality'])
+        self.statsReceivedCount += 1
+        if self.statsReceivedCount == len(self.nodes):
+            state = 'STATS_RESULT'
+            stats = {'CPUTimes':self.CPUTimes, 'cardinalities':self.cardinalities}
+            self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ") to " + str(self.master))
+            send((state, stats,), to=self.master)
+            self.finished = True
