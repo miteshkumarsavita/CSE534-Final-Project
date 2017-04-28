@@ -4,12 +4,8 @@ import copy
 from pprint import pformat
 from config import *
 from DomainNameGenerator import createDomainNameFileIfNotExists
+import pickle
 
-#import time
-#import os
-#import pickle
-#from mapper import getCoordinatorIndex, getCoordinator
-#import random
 
 HierarchicalDNS = import_da('HierarchicalDNS')
 ChordDNS = import_da('ChordDNS')
@@ -67,17 +63,27 @@ class Master(process):
                 result.append(modifiedConfig)
         return result
 
-    def receive(msg=('CLIENT_DONE', stats,), from_= p):
-        self.logger.write(self.name + " received ('EXPERIMENT_DONE'," + str(stats) + ") from " + str(p))
-        #TODO: save client stats
-        self.logger.write(self.name + " sending ('GET_STATS',) to " + str(self.curDNSExp) )
-        send(('GET_STATS',), to= self.curDNSExp)
+    def receive(msg=('CLIENT_DONE', stats,), from_= client):
+        self.logger.write(self.name + " received ('EXPERIMENT_DONE'," + str(stats) + ") from " + str(client))
+        self.clientStats = stats
+        self.logger.write(self.name + " sending ('GET_STATS',) to " + str(self.curDNSExp))
+        send(('GET_STATS',), to=self.curDNSExp)
 
     # received from self.curDNSExp
-    def receive(msg=('STATS_RESULT',stats,), from_= p):
-        self.logger.write(self.name + " received ('STATS_RESULT'," + str(stats) + ") from " + str(p))
-        #TODO: write stats to file
-        
+    def receive(msg=('STATS_RESULT',stats,), from_= dns):
+        self.logger.write(self.name + " received ('STATS_RESULT'," + str(stats) + ") from " + str(dns))
+        stats = {'dns': stats, 'client': self.clientStats}
+
+        fileHandle = open(Filenames.getStatsPickleFilename(config), "wb")
+        fileHandle.truncate()
+        pickle.dump(stats, fileHandle)
+        fileHandle.close()
+
+        fileHandle = open(Filenames.getStatsFilename(config), "wb")
+        fileHandle.truncate()
+        fileHandle.write(pformat(stats))
+        fileHandle.close()
+
         print("Experiment Done")
         print()
 
