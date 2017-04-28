@@ -2,6 +2,7 @@ from Logger import Logger
 import Filenames
 import random
 import hasher
+from Cache import LRUCache
 from config import *
 
 def inRangeExclusiveModulo(value, rangeStart, rangeEnd):
@@ -45,12 +46,18 @@ class FingerTable:
             if inRangeExclusiveModulo(entry.hashedVal, selfHash, lookupHashedVal):
                 return entry.node
         return None # shouldn't happen? TODO:confirm
+    
+    def getSuccessorEntry(self):
+        return self.table[0]
 
 class ChordNode(process):
     def setup(config, nodes):
         self.name = "<ChordNode>"
         self.finished = False
         self.names = set()
+        self.cache = LRUCache(config['LRUCacheSize'])
+        self.caching = config['caching']
+        
         # rotate the list of nodes so that selfNode is at the head of the list
         nodes = rotateList(nodes, -1 * nodes.index(self))
 
@@ -68,6 +75,59 @@ class ChordNode(process):
                 self.names.add(domainName)
 
         self.fingerTable = FingerTable(nodes, self)
+        self.selfNodeHash = selfNodeHash
+
+    def sendCacheMessagesToNodesInPath(query):
+        state = 'CACHE_LOOKUP'
+        for node in query['path']:
+            self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(node))
+            send((state,query,), to=node)
+
+    def receive(msg=('NODE_LOOKUP_QUERY', query,), from_= p):
+        self.logger.write(self.name + " received ('NODE_LOOKUP_QUERY', " + str(query) + ",) from " + str(p))
+        
+        # check cache; if found send response and return
+        result = self.cache.get(query['name'])
+        if result != None:
+            query['result'] = result
+            sendResponseToClient(query)
+            return
+
+        query['path'].append(self)
+        
+        successorEntry = self.fingerTable.getSuccessorEntry()
+        if inRangeRightInclusiveModulo(query['hashedVal'], self.selfNodeHash, successorEntry.hashedVal):
+            # successor is responsible for this name
+            state  = 'NODE_LOOKUP_FINAL'
+            self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(successorEntry.node))
+            send((state, query,), to=successorEntry.node)
+        else:
+            node = self.fingerTable.getClosestPrecedingNode(query['hashedVal'])
+            state  = 'NODE_LOOKUP_QUERY'
+            self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(node))
+            send((state, query,), to=node)
+
+    def receive(msg=('NODE_LOOKUP_FINAL', query,), from_= p):
+        # this node is responsible for this query. That's why it was sent this message=> 'NODE_LOOKUP_FINAL'
+        self.logger.write(self.name + " received ('NODE_LOOKUP_FINAL', " + str(query) + ",) from " + str(p))
+        
+        # check if this node contains this name
+        query['result'] = True if query['name'] in self.names else False
+        sendResponseToClient(query)
+
+        if self.caching:
+            sendCacheMessagesToNodesInPath(query)
+
+
+    def receive(msg=('CACHE_LOOKUP', query,), from_= internalNode):
+        self.logger.write(self.name + " received ('CACHE_LOOKUP', " + str(query) + ",) from " + str(p))
+        # no need to check self.caching. This is only called when caching is turned on
+        self.cache.put(query['name'], query['result'])
+
+    def sendResponseToClient(query):
+        state = 'LOOKUP_RESULT'
+        self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
+        send((state, query,), to=query['client'])
         
 
     def run():
@@ -91,24 +151,22 @@ class ChordDNS(process):
             setup(node, (config, self.nodes,))
             start(node)
 
-
     def run():
         self.logger.write(self.name + " running")
         await(self.finished)
 
     def receive(msg=('LOOKUP_QUERY', query,), from_= client):
         self.logger.write(self.name + " received ('LOOKUP_QUERY', " + str(query) + ",) from " + str(client))
+        query['path'] = [self]
+        query['hashedVal'] = hasher.getHashChord(query['name'], chordSystemVarM)
         node = self.randomizer.choice(self.nodes)
         state  = 'NODE_LOOKUP_QUERY'
-        #TODO: add self path
         self.logger.write(self.name + " sending ('" + state + "'," + str(query) + ") to " + str(node))
-        send(('NODE_LOOKUP_QUERY', query,), to=node)
+        send((state, query,), to=node)
         
-
+    # this handler is never called in our design
+    # since the node that has the result directly sends it to the client
     def receive(msg=('NODE_LOOKUP_RESULT', query,), from_= internalNode):
-        pass
-
-
         #TODO: this code only runs when this is final result
         state = 'LOOKUP_RESULT'
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
