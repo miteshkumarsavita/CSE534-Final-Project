@@ -91,6 +91,7 @@ class ChordNode(process):
         if result != None:
             query['result'] = result
             sendResponseToClient(query)
+            sendCacheMessagesToNodesInPath(query)
             return
 
         query['path'].append(self)
