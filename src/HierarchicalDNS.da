@@ -42,6 +42,7 @@ class HierarchicalNode(process):
         nextNode = self.nextNode if exists else None
         
         state = 'NODE_LOOKUP_RESULT'
+        query['numHops'] += 1
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ", " + str(exists) + ", " + str(nextNode) + ",) to " + str(dns))
         send((state, query, exists, nextNode,), to=dns)
 
@@ -64,8 +65,7 @@ class HierarchicalDNS(process):
         self.randomizer = random.Random()
         self.randomizer.seed(config['seedDNS'])
         
-        domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
-    
+        domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")    
         domainsStruct = pickle.load(domainNamesFile)
         domainNamesFile.close()
         
@@ -106,6 +106,7 @@ class HierarchicalDNS(process):
         
         if partialName in self.TLDNodes:
             query['level'] += 1
+            query['numHops'] += 1
             state = 'NODE_LOOKUP_QUERY'
             nextNode = self.TLDNodes[partialName]
             self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(nextNode))
@@ -119,6 +120,7 @@ class HierarchicalDNS(process):
 
     def sendResponseToClient(query):
         state = 'LOOKUP_RESULT'
+        query['numHops'] += 1
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(query['client']))
         send((state, query,), to=query['client'])
 
@@ -126,6 +128,7 @@ class HierarchicalDNS(process):
         if exists:
             if nextNode:
                 query['level'] += 1
+                query['numHops'] += 1
                 state = 'NODE_LOOKUP_QUERY'
                 self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(nextNode))
                 send((state, query,), to=nextNode)
