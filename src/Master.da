@@ -20,6 +20,7 @@ class Master(process):
         self.nextCExpIndex = 0
         self.curDNSExp = None
         self.clientStats = None
+        self.curConfig = None
 
         Filenames.createAllFolders(config)
         self.logger = Logger(Filenames.getMasterLogFilename(config))
@@ -75,12 +76,12 @@ class Master(process):
         self.logger.write(self.name + " received ('STATS_RESULT'," + str(stats) + ") from " + str(dns))
         stats = {'dns': stats, 'client': self.clientStats}
 
-        fileHandle = open(Filenames.getStatsPickleFilename(config), "wb")
+        fileHandle = open(Filenames.getStatsPickleFilename(self.curConfig), "wb")
         fileHandle.truncate()
         pickle.dump(stats, fileHandle)
         fileHandle.close()
 
-        fileHandle = open(Filenames.getStatsFilename(config), "wb")
+        fileHandle = open(Filenames.getStatsFilename(self.curConfig), "w")
         fileHandle.truncate()
         fileHandle.write(pformat(stats))
         fileHandle.close()
@@ -104,7 +105,7 @@ class Master(process):
         # before starting the client
         if self.nextHExpIndex < len(self.hExps):
             # we need to run a hierarchical DNS experiment
-            exp = self.hExps[self.nextHExpIndex]
+            self.curConfig = exp = self.hExps[self.nextHExpIndex]
             createDomainNameFileIfNotExists(exp)
             
             self.curDNSExp = hDNS = new(HierarchicalDNS.HierarchicalDNS, num=1)
@@ -117,7 +118,7 @@ class Master(process):
         
         elif self.nextCExpIndex < len(self.cExps):
             # we need to run a Chord based DNS experiment
-            exp = self.cExps[self.nextCExpIndex]
+            self.curConfig = exp = self.cExps[self.nextCExpIndex]
             createDomainNameFileIfNotExists(exp)
 
             self.curDNSExp = cDNS = new(ChordDNS.ChordDNS, num=1)

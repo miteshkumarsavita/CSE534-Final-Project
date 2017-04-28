@@ -55,9 +55,9 @@ class Client(process):
     def clientDone():
         self.processingEndTime = time.perf_counter()
         self.endCPUTime = time.process_time()
-        stats = {'latencyStats': {'min':None, 'max':None, 'mean':None 'stddev':None}, 
-                 'throughput':None
-                 'nHops': {'min':None, 'max':None, 'mean':None 'stddev':None}}
+        stats = {'latencyStats': {'min':None, 'max':None, 'mean':None, 'stddev':None}, 
+                 'throughput':None,
+                 'nHops': {'min':None, 'max':None, 'mean':None, 'stddev':None}}
         
         #TODO:crunch numbers
         stats['latencyStats']['min'] = np.min(self.latencies)
