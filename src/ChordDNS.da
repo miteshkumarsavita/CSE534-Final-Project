@@ -53,9 +53,8 @@ class FingerTable:
             node = nodes[index]
             self.table.append(FingerTableEntry(node, hasher.getHashChord(node, chordSystemVarM)))
 
-    def getClosestPrecedingNode(self, val):
+    def getClosestPrecedingNode(self, lookupHashedVal):
         # start from the end
-        lookupHashedVal = hasher.getHashChord(val, chordSystemVarM)
         for i in range(len(self.table)-1, -1, -1):
             entry = self.table[i]
             if inRangeExclusiveModulo(entry.hashedVal, selfHash, lookupHashedVal):
