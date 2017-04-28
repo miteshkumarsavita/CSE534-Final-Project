@@ -49,10 +49,18 @@ class Client(process):
     def clientDone():
         self.processingEndTime = time.perf_counter()
         self.endCPUTime = time.process_time()
+        stats = {'latencyStats': {'min':None, 'max':None, 'mean':None 'stddev':None}, 'throughput':None}
+        
+        #TODO:crunch numbers
+        
+        # for example
+        #numpy.amin(latencies),
+        #numpy.amax(latencies),
+        #numpy.mean(latencies),
+        #numpy.std(latencies)
 
-        state = 'CLIENT_DONE'
-        stats = {'dummyValue':23}
         target = self.master
+        state = 'CLIENT_DONE'
         self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ",) to " + str(target))
-        send((state,stats,), to=target)
+        send((state, stats,), to=target)
         self.finished = True
