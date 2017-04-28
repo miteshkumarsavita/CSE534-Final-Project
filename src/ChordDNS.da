@@ -71,7 +71,8 @@ class ChordNode(process):
         self.names = set()
         self.cache = LRUCache(config['LRUCacheSize'])
         self.caching = config['caching']
-        
+        self.logger = Logger(Filenames.getDNSLogFilename(config))
+
         # rotate the list of nodes so that selfNode is at the head of the list
         nodes = rotateList(nodes, -1 * nodes.index(self))
 
