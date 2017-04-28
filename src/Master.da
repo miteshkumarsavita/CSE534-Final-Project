@@ -69,6 +69,7 @@ class Master(process):
 
     def receive(msg=('CLIENT_DONE', stats,), from_= p):
         self.logger.write(self.name + " received ('EXPERIMENT_DONE'," + str(stats) + ") from " + str(p))
+        #TODO: save client stats
         self.logger.write(self.name + " sending ('GET_STATS',) to " + str(self.curDNSExp) )
         send(('GET_STATS',), to= self.curDNSExp)
 

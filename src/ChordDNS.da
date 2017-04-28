@@ -4,6 +4,7 @@ import random
 import hasher
 from Cache import LRUCache
 from config import *
+import pickle
 
 def inRangeExclusiveModulo(value, rangeStart, rangeEnd):
     if rangeStart < rangeEnd:
@@ -35,7 +36,7 @@ class FingerTable:
         # make a list of hash values for nodes in nodes list.
         nodesHashList = []
         for node in nodes:
-            nodesHashList.append(getHashChord(node, chordSystemVarM))
+            nodesHashList.append(hasher.getHashChord(node, chordSystemVarM))
         # make finger table for this node
         for i in range(chordSystemVarM):
             n = 2**i
@@ -47,17 +48,18 @@ class FingerTable:
                 nodeHash = nodesHashList[0]
             # if hash is same as nextVal, assign the same node    
             if nodeHash != nextVal:
-                index = nodesHashList.index(nodeHash) + 1
+                index = (nodesHashList.index(nodeHash) + 1) % len(nodes)
             else:
                 index = nodesHashList.index(nodeHash)
             node = nodes[index]
             self.table.append(FingerTableEntry(node, hasher.getHashChord(node, chordSystemVarM)))
+            
 
     def getClosestPrecedingNode(self, lookupHashedVal):
         # start from the end
         for i in range(len(self.table)-1, -1, -1):
             entry = self.table[i]
-            if inRangeExclusiveModulo(entry.hashedVal, selfHash, lookupHashedVal):
+            if inRangeExclusiveModulo(entry.hashedVal, self.selfHash, lookupHashedVal):
                 return entry.node
         return None # shouldn't happen? TODO:confirm
     
@@ -81,7 +83,7 @@ class ChordNode(process):
         domainsStruct = pickle.load(domainNamesFile)
         domainNamesFile.close()
         domainNames = domainsStruct['domainNames']
-
+        
         selfNodeHash = hasher.getHashChord(nodes[0], chordSystemVarM)
         predecessorNodeHash = hasher.getHashChord(nodes[-1], chordSystemVarM)
         for domainName in domainNames:
@@ -136,7 +138,7 @@ class ChordNode(process):
 
 
     def receive(msg=('CACHE_LOOKUP', query,), from_= internalNode):
-        self.logger.write(self.name + " received ('CACHE_LOOKUP', " + str(query) + ",) from " + str(p))
+        self.logger.write(self.name + " received ('CACHE_LOOKUP', " + str(query) + ",) from " + str(internalNode))
         # no need to check self.caching. This is only called when caching is turned on
         self.cache.put(query['name'], query['result'])
 
