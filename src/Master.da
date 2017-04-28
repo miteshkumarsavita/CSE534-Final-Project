@@ -19,6 +19,7 @@ class Master(process):
         self.nextHExpIndex = 0
         self.nextCExpIndex = 0
         self.curDNSExp = None
+        self.clientStats = None
 
         Filenames.createAllFolders(config)
         self.logger = Logger(Filenames.getMasterLogFilename(config))
