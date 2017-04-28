@@ -31,8 +31,7 @@ class FingerTable:
     def __init__(self, nodes, selfNode):
         self.table = []
         self.selfHash = hasher.getHashChord(selfNode, chordSystemVarM)
-        # rotate the list of nodes so that selfNode is at the head of the list
-        nodes = rotateList(nodes, -1 * nodes.index(selfNode))
+        
         # make a list of hash values for nodes in nodes list.
         nodesHashList = []
         for node in nodes:
