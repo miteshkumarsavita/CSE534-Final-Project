@@ -33,9 +33,25 @@ class FingerTable:
         self.selfHash = hasher.getHashChord(selfNode, chordSystemVarM)
         # rotate the list of nodes so that selfNode is at the head of the list
         nodes = rotateList(nodes, -1 * nodes.index(selfNode))
-        
+        # make a list of hash values for nodes in nodes list.
+        nodesHashList = []
+        for node in nodes:
+            nodesHashList.append(getHashChord(node, chordSystemVarM))
+        # make finger table for this node
         for i in range(chordSystemVarM):
-            node  = None #TODO: Mitesh
+            n = 2**i
+            nextVal = (nodesHashList[nodes.index(selfNode)] + n) % 2**chordSystemVarM
+            try:
+                nodeHash = max(filter(lambda x: x < nextVal, nodesHashList))
+            except ValueError:
+                # this is the case when hash value comes 0.
+                nodeHash = nodesHashList[0]
+            # if hash is same as nextVal, assign the same node    
+            if nodeHash != nextVal:
+                index = nodesHashList.index(nodeHash) + 1
+            else:
+                index = nodesHashList.index(nodeHash)
+            node = nodes[index]
             self.table.append(FingerTableEntry(node, hasher.getHashChord(node, chordSystemVarM)))
 
     def getClosestPrecedingNode(self, val):
