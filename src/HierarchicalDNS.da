@@ -4,6 +4,7 @@ import random
 import pickle
 from Cache import LRUCache
 from pprint import pformat
+import time
 
 # Usage:
 # getNameBasedOnLevel("shikhar.io", 0) => "io"
@@ -22,6 +23,8 @@ class HierarchicalNode(process):
         self.level = level
         self.logger = Logger(Filenames.getDNSLogFilename(config))
         self.names = set()
+        self.startCPUTime = None
+        self.endCPUTime = None
 
         domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")
         domainsStruct = pickle.load(domainNamesFile)
@@ -46,10 +49,19 @@ class HierarchicalNode(process):
         self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ", " + str(exists) + ", " + str(nextNode) + ",) to " + str(dns))
         send((state, query, exists, nextNode,), to=dns)
 
-    def receive(msg=('NODE_SHUTDOWN',), from_= dns):
+    def receive(msg=('GET_STATS',), from_= dns):
+        self.endCPUTime = time.process_time()
+        self.logger.write(self.name + " received ('GET_STATS',) from " + str(dns))
+        state = 'STATS_RESULT'
+        stats = {'CPUTime':None, 'cardinality':None}
+        stats['CPUTime'] = self.endCPUTime - self.startCPUTime
+        stats['cardinality'] = len(self.names)
+        self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ") to " + str(dns))
+        send((state, stats,), to=dns)
         self.finished = True
 
     def run():
+        self.startCPUTime = time.process_time()
         await(self.finished)
 
 class HierarchicalDNS(process):
@@ -61,10 +73,13 @@ class HierarchicalDNS(process):
         self.logger.write(self.name + " setup")
         self.finished = False
         self.cache = LRUCache(config['LRUCacheSize'])
-    
+        self.statsReceivedCount = 0
+        self.CPUTimes = []
+        self.cardinalities = []
+
         self.randomizer = random.Random()
         self.randomizer.seed(config['seedDNS'])
-        
+
         domainNamesFile = open(Filenames.getDomainNamesFilename(config), "rb")    
         domainsStruct = pickle.load(domainNamesFile)
         domainNamesFile.close()
@@ -74,10 +89,13 @@ class HierarchicalDNS(process):
         # create new nodes for each TLD
         # assign these nodes to TLDs
         self.TLDNodes = {}
+        self.nodes = []
         for tld in self.TLDs:
             #TODO: save this node so that we can send GET_STATS: already saved!!
             self.TLDNodes[tld] = list(new(HierarchicalNode, num=1))[0]
+            self.nodes.append(self.TLDNodes[tld])
             tldNodesList = list(new(HierarchicalNode, num=(config['levels']-2)))
+            self.nodes.extend(tldNodesList)
             tldNodesList.insert(0, self.TLDNodes[tld])
             tldNodesList.append(None)
             # now, tldNodesList looks like [comNode(containing google, apple,...), googleNode(containing www, mail,...),None]
@@ -149,10 +167,21 @@ class HierarchicalDNS(process):
             sendResponseToClient(query)
 
 
+    def receive(msg=('STATS_RESULT', stats,), from_= node):
+        state = "STATS_RESULT"
+        self.logger.write(self.name + " received ('" + state + "'," + str(stats) + ") from " + str(node))
+        self.CPUTimes.append(stats['CPUTime'])
+        self.cardinalities.append(stats['cardinality'])
+        self.statsReceivedCount += 1
+        if self.statsReceivedCount == len(self.nodes):
+            stats = {'CPUTimes':self.CPUTimes, 'cardinalities':self.cardinalities}
+            self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ") to " + str(self.master))
+            send((state, stats,), to=self.master)
+            self.finished = True
+
     def receive(msg=('GET_STATS',), from_= master):
-        self.logger.write(self.name + " received ('GET_STATS',) from " + str(master))
-        state = 'STATS_RESULT'
-        stats = {'dummyValue':23}
-        self.logger.write(self.name + " sending ('" + state + "',) to " + str(master))
-        send((state, stats,), to=master)
-        self.finished = True
+        state = "GET_STATS"
+        self.logger.write(self.name + " received ('" + state + "',) from " + str(master))
+        for node in self.nodes:
+            self.logger.write(self.name + " sending ('" + state + "',) to " + str(node))
+            send((state,), to=node)
