@@ -17,6 +17,7 @@ class Client(process):
         self.curReqIndex = 0
         self.latencies = []
         self.numHops = []
+        self.resolvedByCacheCount = 0
 
         self.processingStartTime = None
         self.processingEndTime = None
@@ -33,8 +34,9 @@ class Client(process):
         for i in range(self.config['nReq']):
             query = self.requestGenerator.getNext()
             query['client'] = self
-            query['startTime'] = time.perf_counter()
+            query['resolvedByCache'] = False
             query['numHops'] = 1
+            query['startTime'] = time.perf_counter()
             state = 'LOOKUP_QUERY'
             self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(self.dns))
             send((state, query,), to=self.dns)
@@ -48,6 +50,9 @@ class Client(process):
         #TODO: save this somewhere so that we can calculate latency
         self.latencies.append(query['endTime'] - query['startTime'])
         self.numHops.append(query['numHops'])
+        if query['resolvedByCache']:
+            self.resolvedByCacheCount += 1
+
         self.curReqIndex += 1
         if self.curReqIndex == self.config['nReq']:
             clientDone()
@@ -57,9 +62,10 @@ class Client(process):
         self.endCPUTime = time.process_time()
         stats = {'latencyStats': {'min':None, 'max':None, 'mean':None, 'stddev':None}, 
                  'throughput':None,
+                 'totalRequestsSent':self.config['nReq'],
+                 'resolvedByCache':self.resolvedByCacheCount,
                  'nHops': {'min':None, 'max':None, 'mean':None, 'stddev':None}}
         
-        #TODO:crunch numbers
         stats['latencyStats']['min'] = np.min(self.latencies)
         stats['latencyStats']['max'] = np.max(self.latencies)
         stats['latencyStats']['mean'] = np.mean(self.latencies)

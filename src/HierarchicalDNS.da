@@ -98,6 +98,7 @@ class HierarchicalDNS(process):
         if self.config['caching']:
             result = self.cache.get(query['name'])
             if result != None:
+                query['resolvedByCache'] = True
                 query['result'] = result
                 sendResponseToClient(query)
                 return

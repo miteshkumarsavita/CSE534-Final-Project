@@ -110,6 +110,7 @@ class ChordNode(process):
         result = self.cache.get(query['name'])
         if result != None:
             query['result'] = result
+            query['resolvedByCache'] = True
             sendResponseToClient(query)
             sendCacheMessagesToNodesInPath(query)
             return
