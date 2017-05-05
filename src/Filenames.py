@@ -50,6 +50,10 @@ def getThroughputGraphFilename(config):
     return getGraphsFolderName(config) + "throughput.png"
 def getLatencyGraphFilename(config):
     return getGraphsFolderName(config) + "latency.png"
+def getResolvedByCacheFilename(config):
+    return getGraphsFolderName(config) + "resolvedByCache.png"
+def getNHopsFilename(config):
+    return getGraphsFolderName(config) + "nHops.png"
 def getMessagePerRequestGraphFilename(config):
     return getGraphsFolderName(config) + "messagesPerRequest.png"
 
