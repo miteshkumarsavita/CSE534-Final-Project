@@ -148,15 +148,15 @@ class ChordNode(process):
         # no need to check self.caching. This is only called when caching is turned on
         self.cache.put(query['name'], query['result'])
 
-    def receive(msg=('GET_STATS',), from_= DNS):
+    def receive(msg=('GET_STATS',), from_= dns):
         self.endCPUTime = time.process_time()
-        self.logger.write(self.name + " received ('GET_STATS',) from " + str(DNS))
+        self.logger.write(self.name + " received ('GET_STATS',) from " + str(dns))
         state = 'STATS_RESULT'
         stats = {'CPUTime':None, 'cardinality':None}
         stats['CPUTime'] = self.endCPUTime - self.startCPUTime
         stats['cardinality'] = len(self.names)
-        self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ") to " + str(DNS))
-        send((state, stats,), to=DNS)
+        self.logger.write(self.name + " sending ('" + state + "', " + str(stats) + ") to " + str(dns))
+        send((state, stats,), to=dns)
         self.finished = True
 
     def sendResponseToClient(query):

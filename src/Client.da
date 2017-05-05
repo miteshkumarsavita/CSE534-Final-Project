@@ -63,7 +63,7 @@ class Client(process):
         stats = {'latencyStats': {'min':None, 'max':None, 'mean':None, 'stddev':None}, 
                  'throughput':None,
                  'totalRequestsSent':self.config['nReq'],
-                 'resolvedByCache':self.resolvedByCacheCount,
+                 'resolvedByCache':self.resolvedByCacheCount/self.config['nReq'],
                  'nHops': {'min':None, 'max':None, 'mean':None, 'stddev':None}}
         
         stats['latencyStats']['min'] = np.min(self.latencies)
