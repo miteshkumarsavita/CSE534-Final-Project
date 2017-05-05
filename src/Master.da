@@ -35,17 +35,20 @@ class Master(process):
         await(self.finished)
         print("All experiments done!")
 
-    def createBaseConfig(config):
+    def createBaseConfig(config, type):
         attrsToRemove = ["hierarchical", "chord", "experiments"]
         baseConfig = {}
         for k in config:
             if k not in attrsToRemove:
                 baseConfig[k] = config[k]
+        for k in config[type]:
+            if k != "experiments":
+                baseConfig[k] = config[type][k]
         return baseConfig
 
     def createExperiments(config, type):
         result = []
-        baseConfig = createBaseConfig(config)
+        baseConfig = createBaseConfig(config, type)
         
         exps = config['experiments'] if 'experiments' in config else None
         if not exps: exps = config[type]['experiments'] if 'experiments' in config[type] else None
