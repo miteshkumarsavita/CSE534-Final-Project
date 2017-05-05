@@ -11,7 +11,7 @@ def createBaseConfig(config, type):
             baseConfig[k] = config[type][k]
     return baseConfig
 
-def createExperimentsWithCaching(config, type, caching):
+def createExperimentsWithCachingParam(config, type, caching):
     result = []
     baseConfig = createBaseConfig(config, type)
     
@@ -29,4 +29,5 @@ def createExperimentsWithCaching(config, type, caching):
     return result
 
 def createExperiments(config, type):
-    return createExperimentsWithCaching(config, type, True) + createExperimentsWithCaching(config, type, False)
+    return createExperimentsWithCachingParam(config, type, True) + \
+           createExperimentsWithCachingParam(config, type, False)
