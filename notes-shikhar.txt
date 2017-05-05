@@ -154,6 +154,4 @@ It will also have stat message handlers which will be called at the end by maste
 This will be a simple chord ring based on the paper "Chord: A Scalable Peer-to-Peer Lookup Protocol for Internet Applications" by Stoica et al.
 
 ---------------------------------------------------------
-TODO: measure
-resolvedByCache (boolean)
-Queries processed by this node
+
