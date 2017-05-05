@@ -1,10 +1,10 @@
 from Logger import Logger
 import Filenames
-import copy
 from pprint import pformat
 from config import *
 from DomainNameGenerator import createDomainNameFileIfNotExists
 import pickle
+import Experiments
 
 
 HierarchicalDNS = import_da('HierarchicalDNS')
@@ -25,8 +25,8 @@ class Master(process):
         Filenames.createAllFolders(config)
         self.logger = Logger(Filenames.getMasterLogFilename(config))
 
-        self.hExps = createExperiments(config, hierarchical)
-        self.cExps = createExperiments(config, chord)
+        self.hExps = Experiments.createExperiments(config, hierarchical)
+        self.cExps = Experiments.createExperiments(config, chord)
         self.logger.write(str(len(self.hExps)) + " hierarchical experiments created")
         self.logger.write(str(len(self.cExps)) + " chord experiments created")
     
@@ -34,39 +34,6 @@ class Master(process):
         startNextExperiment()
         await(self.finished)
         print("All experiments done!")
-
-    def createBaseConfig(config, type):
-        attrsToRemove = ["hierarchical", "chord", "experiments"]
-        baseConfig = {}
-        for k in config:
-            if k not in attrsToRemove:
-                baseConfig[k] = config[k]
-        for k in config[type]:
-            if k != "experiments":
-                baseConfig[k] = config[type][k]
-        return baseConfig
-
-    def createExperiments(config, type):
-        result = []
-        baseConfig = createBaseConfig(config, type)
-        
-        exps = config['experiments'] if 'experiments' in config else None
-        if not exps: exps = config[type]['experiments'] if 'experiments' in config[type] else None
-        
-        if exps:
-            for exp in exps:
-                modifiedConfig = copy.deepcopy(baseConfig)
-                modifiedConfig['type'] = type
-                modifiedConfig['caching'] = False
-                for k in exp:
-                    modifiedConfig[k] = exp[k]
-                result.append(modifiedConfig)
-
-                #same as above but caching on
-                modifiedConfig = copy.deepcopy(modifiedConfig)
-                modifiedConfig['caching'] = True
-                result.append(modifiedConfig)
-        return result
 
     def receive(msg=('CLIENT_DONE', stats,), from_= client):
         self.logger.write(self.name + " received ('EXPERIMENT_DONE'," + str(stats) + ") from " + str(client))
