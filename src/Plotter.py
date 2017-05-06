@@ -16,13 +16,14 @@ def getQuantityBeingChanged(config):
 def plotToFile(xLabel, xData, yLabel, yData, legend, linestyle, color, title, filename):
     #print(xData)
     #print(yData)
+    csfont = {'fontname':'Serif'}
     for i in range(len(xData)):
         if xData[i]:
-            plt.plot(xData[i], yData[i], linestyle=linestyle[i], color=color[i], label=legend[i])
-    plt.title(title)
+            plt.plot(xData[i], yData[i], linestyle=linestyle[i], color=color[i], label=legend[i], linewidth=3)
+    plt.title(title, **csfont, weight='light')
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
-    plt.legend()
+    plt.legend(loc=2, prop={'size':6})
     plt.savefig(filename, dpi=DPI)
     plt.close()
 
