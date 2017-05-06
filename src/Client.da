@@ -19,6 +19,9 @@ class Client(process):
         self.numHops = []
         self.resolvedByCacheCount = 0
 
+        self.curRequestToSend = 0
+        self.requestResultsReceived = 0
+
         self.processingStartTime = None
         self.processingEndTime = None
         self.startCPUTime = None
@@ -26,36 +29,38 @@ class Client(process):
         self.requestGenerator = RequestGenerator(Filenames.getDomainNamesFilename(config), config['subset'], config['seedClient'])
         
 
+    def sendRequest():
+        query = self.requestGenerator.getNext()
+        query['client'] = self
+        query['resolvedByCache'] = False
+        query['numHops'] = 1
+        query['startTime'] = time.perf_counter()
+        state = 'LOOKUP_QUERY'
+        self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(self.dns))
+        send((state, query,), to=self.dns)
+
     def run():
         self.logger.write(self.name + " running")
         self.startCPUTime = time.process_time()
         self.processingStartTime = time.perf_counter()
-
-        for i in range(self.config['nReq']):
-            query = self.requestGenerator.getNext()
-            query['client'] = self
-            query['resolvedByCache'] = False
-            query['numHops'] = 1
-            query['startTime'] = time.perf_counter()
-            state = 'LOOKUP_QUERY'
-            self.logger.write(self.name + " sending ('" + state + "', " + str(query) + ",) to " + str(self.dns))
-            send((state, query,), to=self.dns)
-        
+        sendRequest()
         await(self.finished)
     
 
     def receive(msg=('LOOKUP_RESULT', query), from_= p):
         self.logger.write(self.name + " received ('LOOKUP_RESULT', " + str(query) + ",) from " + str(p))
         query['endTime'] = time.perf_counter()
-        #TODO: save this somewhere so that we can calculate latency
+        
         self.latencies.append(query['endTime'] - query['startTime'])
         self.numHops.append(query['numHops'])
         if query['resolvedByCache']:
             self.resolvedByCacheCount += 1
 
-        self.curReqIndex += 1
-        if self.curReqIndex == self.config['nReq']:
+        self.requestResultsReceived += 1
+        if self.requestResultsReceived == self.config['nReq']:
             clientDone()
+        else:
+            sendRequest()
 
     def clientDone():
         self.processingEndTime = time.perf_counter()

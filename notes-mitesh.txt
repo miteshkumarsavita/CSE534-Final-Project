@@ -1,3 +1,8 @@
+TODO: Mitesh
+go through Plotter.py and try to find bugs (I wrote it in a hurry. Make sure I didn't make a silly mistake)
+Latency too high! Make sure it is not a bug.
+run experiments
+
 - what to do in case of heirarchical DNS when an entry like google.co.jp comes. Are we handling such situations? 
 Will we be redirecting the query again to the tld server in this case?
 Shikhar: Our testbed is actually really simple; we don't really model the structure of the actual DNS. We won't have the concept of private namerservers.
