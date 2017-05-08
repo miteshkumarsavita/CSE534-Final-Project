@@ -11,7 +11,7 @@ class RequestGenerator:
         self.randomizer.seed(seed)
 
         # only take the first {subset} fraction of requests
-        self.domainNames = domainNames['domainNames'][:len(domainNames['domainNames'])*subset]
+        self.domainNames = domainNames['domainNames'][:int(len(domainNames['domainNames'])*subset)]
     
     def getNext(self):
         query = {}
