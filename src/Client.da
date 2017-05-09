@@ -26,7 +26,7 @@ class Client(process):
         self.processingEndTime = None
         self.startCPUTime = None
         self.endCPUTime = None
-        self.requestGenerator = RequestGenerator(Filenames.getDomainNamesFilename(config), config['subset'], config['seedClient'])
+        self.requestGenerator = RequestGenerator(Filenames.getDomainNamesFilename(config), config['subset'], config['generateNonExistent'], config['seedClient'])
         
 
     def sendRequest():
@@ -51,7 +51,7 @@ class Client(process):
         self.logger.write(self.name + " received ('LOOKUP_RESULT', " + str(query) + ",) from " + str(p))
         query['endTime'] = time.perf_counter()
         
-        self.latencies.append(query['endTime'] - query['startTime'])
+        self.latencies.append((query['endTime'] - query['startTime']) * 1000)
         self.numHops.append(query['numHops'])
         if query['resolvedByCache']:
             self.resolvedByCacheCount += 1

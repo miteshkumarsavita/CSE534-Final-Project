@@ -2,7 +2,8 @@ import random
 import pickle
 
 class RequestGenerator:
-    def __init__(self, filename, subset, seed):
+    def __init__(self, filename, subset, generateNonExistent, seed):
+        self.generateNonExistent = generateNonExistent
         fileHandle = open(filename, "rb")
         domainNames = pickle.load(fileHandle)
         fileHandle.close()
@@ -15,5 +16,10 @@ class RequestGenerator:
     
     def getNext(self):
         query = {}
-        query['name'] = self.randomizer.choice(self.domainNames)
+        name = self.randomizer.choice(self.domainNames)
+        if self.generateNonExistent:
+            l = name.split(".")
+            l[0] = l[0] + 'a'
+            name = '.'.join(l)
+        query['name'] = name
         return query

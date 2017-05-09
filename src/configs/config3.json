@@ -2,9 +2,10 @@
 	"name": "repeat",
 	"nReq": 10000,
 	"levels": 4,
-	"nNames" : 10000,
+	"nNames" : 5000,
 	"nTLD": 10,
-	"LRUCacheSize": 1000,
+	"LRUCacheSize": 100,
+	"generateNonExistent": false,
 	"seedNames" : 92978124256937405453606819292651346406489625183965378247491082671104002713001,
 	"seedClient": 75428026916042701780898197245971277256378978148326128052769525158999092398863,
 	"seedDNS": 33551995649833985271443518791424569545852258058768975839197036456428976370330,
@@ -13,18 +14,18 @@
 		
 	},
 	"chord": {
-		"nNodes": 10
+		"nNodes": 40
 	},
 	"experiments": [
-		{"subset": 0.10},
-		{"subset": 0.09},
-		{"subset": 0.08},
-		{"subset": 0.07},
-		{"subset": 0.06},
 		{"subset": 0.05},
-		{"subset": 0.04},
-		{"subset": 0.03},
-		{"subset": 0.02},
-		{"subset": 0.01}
+		{"subset": 0.10},
+		{"subset": 0.15},
+		{"subset": 0.20},
+		{"subset": 0.25},
+		{"subset": 0.30},
+		{"subset": 0.35},
+		{"subset": 0.40},
+		{"subset": 0.45},
+		{"subset": 0.50}
 	]
 }
