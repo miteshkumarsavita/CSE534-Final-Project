@@ -1,0 +1,13 @@
+{'client': {'latencyStats': {'max': 9.2488370137289166,
+                             'mean': 2.812759690557141,
+                             'min': 2.1227630786597729,
+                             'stddev': 0.49050061050327015},
+            'nHops': {'max': 5,
+                      'mean': 4.4989999999999997,
+                      'min': 4,
+                      'stddev': 0.49999899999900005},
+            'resolvedByCache': 0.0,
+            'throughput': 353.8030173866815,
+            'totalRequestsSent': 10000},
+ 'dns': {'CPUTimes': [9.374987, 7.247375999999999],
+         'cardinalities': [858, 142]}}
