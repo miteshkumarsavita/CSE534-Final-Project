@@ -1,5 +1,6 @@
 import json
 import matplotlib.pyplot as plt
+from scipy.interpolate import spline
 from Filenames import *
 import Experiments
 import pickle
@@ -24,7 +25,7 @@ def plotToFile(xLabel, xData, yLabel, yData, legend, linestyle, color, title, fi
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
     plt.legend(loc=2, prop={'size':6})
-    plt.savefig(filename, dpi=DPI)
+    plt.savefig(filename, dpi=DPI, bbox_inches='tight')
     plt.close()
 
 def plotQuantity(title, yLabel, config, funcToGetYDataFromStats, plotTofilename):
@@ -49,12 +50,15 @@ def plotQuantity(title, yLabel, config, funcToGetYDataFromStats, plotTofilename)
         for exp in exps:
             x = exp[quantityBeingChanged]
             f = open(getStatsPickleFilename(exp), "rb")
+            #print(getStatsPickleFilename(exp))
             stats = pickle.load(f)
             f.close()
             y = funcToGetYDataFromStats(stats)
             xData[i].append(x)
             yData[i].append(y)
-
+            
+    print(xData)
+    print(yData)
     plotToFile(xLabel, xData, yLabel, yData, legend, linestyle, color, title, plotTofilename)
 
 
@@ -71,7 +75,7 @@ def main():
     plotQuantity("Average Throughput", "Throughput (lookups per second)", configFile, 
         lambda stats: stats['client']['throughput'], getThroughputGraphFilename(configFile))
 
-    plotQuantity("Average Latency", "Latency (in seconds)", configFile, 
+    plotQuantity("Average Latency", "Latency (in milliseconds)", configFile, 
         lambda stats: stats['client']['latencyStats']['mean'], getLatencyGraphFilename(configFile))
 
     plotQuantity("Resolved by Cache", "Fraction of requests resolved by cache", \
